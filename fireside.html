@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Fireside</title>
+<style>
+:root{
+  --bg:#111;
+  --surface:#1c1c1c;
+  --card:#242424;
+  --border:#383838;
+  --text:#f5f5f5;
+  --muted:#999;
+  --accent:#f5f5f5;
+  --success:#22c55e;
+  --warning:#d97706;
+  --danger:#dc2626;
+  --blue:#3b82f6;
+  --nav-h:58px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:var(--nav-h);-webkit-font-smoothing:antialiased}
+.header{background:var(--bg);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;position:sticky;top:0;z-index:50}
+.header h1{font-size:17px;font-weight:700;letter-spacing:.5px;color:var(--text)}
+.header-sub{font-size:11px;color:var(--muted);margin-left:8px;margin-top:1px}
+.main{padding:14px;max-width:560px;margin:0 auto}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:var(--bg);border-top:1px solid var(--border);display:flex;z-index:100}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--muted);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:none;background:none;padding:6px 2px;transition:color .15s}
+.nav-btn.active{color:var(--text)}
+.nav-btn svg{width:18px;height:18px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px}
+.section-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.form-group{margin-bottom:10px}
+label{display:block;font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+input,select,textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:9px 11px;color:var(--text);font-size:15px;outline:none;transition:border-color .15s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:#555}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:30px}
+select option{background:var(--surface)}
+textarea{resize:vertical;min-height:64px;font-size:14px;line-height:1.5}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:6px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:opacity .15s;width:100%}
+.btn:active{opacity:.7}
+.btn-primary{background:var(--text);color:#000}
+.btn-secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-success{background:var(--success);color:#000}
+.btn-danger{background:transparent;color:var(--danger);border:1px solid #3a1515}
+.btn-blue{background:transparent;color:var(--blue);border:1px solid #1e3a5f}
+.btn-sm{padding:5px 11px;font-size:12px;width:auto;border-radius:5px}
+.btn-row{display:flex;gap:8px}
+.btn-row .btn{flex:1}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.badge-pending{color:var(--warning);border:1px solid #3d2800}
+.badge-paid{color:var(--success);border:1px solid #14380a}
+.badge-assigned{color:var(--blue);border:1px solid #1e3a5f}
+.badge-delivered{color:var(--muted);border:1px solid var(--border)}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.price-row{display:flex;justify-content:space-between;font-size:14px;padding:3px 0;color:var(--muted)}
+.price-row.total{color:var(--text);font-weight:700;font-size:16px;border-top:1px solid var(--border);padding-top:8px;margin-top:4px}
+.price-row.cut{color:var(--text);font-weight:600}
+.quote-preview{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:13px;line-height:1.7;white-space:pre-wrap;margin-bottom:10px;font-family:monospace;color:var(--text)}
+.parse-box{border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px}
+.filter-tabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.filter-tabs::-webkit-scrollbar{display:none}
+.ftab{padding:5px 13px;border-radius:4px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;white-space:nowrap;font-size:12px;font-weight:600;letter-spacing:.3px}
+.ftab.active{background:var(--text);border-color:var(--text);color:#000}
+.order-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:8px}
+.order-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.order-name{font-weight:700;font-size:15px}
+.order-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.order-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px}
+.stat-value{font-size:22px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:3px}
+.supplier-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:8px}
+.wood-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;border-bottom:1px solid var(--border)}
+.wood-row:last-child{border-bottom:none}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:6px}
+.dot-on{background:var(--success)}
+.dot-off{background:#333}
+.empty{text-align:center;color:var(--muted);padding:48px 20px;font-size:14px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border-radius:12px 12px 0 0;padding:20px;width:100%;max-width:560px;max-height:88vh;overflow-y:auto;border-top:1px solid var(--border)}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px}
+.customer-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.avail-toggle{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer}
+.toggle-cb{appearance:none;-webkit-appearance:none;width:20px!important;height:20px;border-radius:4px;border:1px solid var(--border);background:var(--surface);cursor:pointer;flex-shrink:0;position:relative;transition:background .15s,border-color .15s}
+.toggle-cb:checked{background:var(--success);border-color:var(--success)}
+.toggle-cb:checked::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#000;font-size:12px;font-weight:800;line-height:1}
+#print-layer{display:none}
+@media print{
+  body > *:not(#print-layer){display:none!important}
+  #print-layer{display:block!important;font-family:Arial,sans-serif;font-size:10.5px;color:#000;background:#fff;padding:18mm 20mm 20mm 20mm;width:210mm;min-height:297mm;box-sizing:border-box}
+  #print-layer .ph{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px}
+  #print-layer .plogo{height:64px;width:auto}
+  #print-layer .pcontact{text-align:right;font-size:10px;line-height:1.85}
+  #print-layer hr{border:none;border-top:1px solid #aaa;margin:10px 0 16px}
+  #print-layer .pmeta{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}
+  #print-layer .precipient{font-size:10px;line-height:1.85}
+  #print-layer .pqmeta{text-align:right;font-size:10px;line-height:1.85}
+  #print-layer .pqno{font-style:italic;font-weight:700;font-size:12px;display:block}
+  #print-layer .pspecs{font-weight:700;font-size:11.5px;margin-bottom:22px}
+  #print-layer .pfield{display:flex;align-items:flex-start;margin-bottom:14px;font-size:10.5px}
+  #print-layer .pflabel{font-weight:700;font-style:italic;width:110px;flex-shrink:0}
+  #print-layer .ptotal{margin-top:6px;margin-bottom:0}
+  #print-layer .pbullets{margin:22px 0 0 18px;font-size:10px;line-height:2}
+  #print-layer .psign{font-size:10.5px;margin-top:28px;line-height:1}
+  #print-layer .psign p{margin-bottom:14px}
+  @page{size:A4;margin:0}
+}
+.winz-banner{background:#0f1826;border:1px solid #1e3a5f;border-radius:6px;padding:9px 13px;margin-bottom:12px;font-size:13px;color:var(--blue);font-weight:600}
+.badge-winz{color:var(--blue);border:1px solid #1e3a5f}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>FIRESIDE</h1>
+  <span class="header-sub">Quote Manager</span>
+  <span id="sync-status" style="margin-left:auto;font-size:11px;color:var(--muted)">● Local</span>
+</div>
+
+<div class="main">
+
+  <!-- ===== QUOTE TAB ===== -->
+  <div id="tab-quote" class="tab-content active">
+    <!-- WINZ toggle -->
+    <div style="margin-bottom:12px">
+      <button id="winz-toggle-btn" class="btn btn-secondary" onclick="toggleWinz()">WINZ Quote: OFF</button>
+    </div>
+
+    <!-- WINZ extra fields -->
+    <div id="winz-fields" style="display:none" class="card" style="border-color:var(--blue)">
+      <div class="winz-banner">📋 WINZ Quote Mode — generates a formal PDF with quote number</div>
+      <div class="grid2">
+        <div class="form-group"><label>Quote No.</label><input type="number" id="w-quoteNo" placeholder="1402"></div>
+        <div class="form-group"><label>Quote Date</label><input type="date" id="w-date"></div>
+      </div>
+      <div class="form-group"><label>Delivery Note</label><textarea id="w-delivNote" rows="2">Based on suitable driveway access.</textarea></div>
+    </div>
+
+    <div class="parse-box">
+      <div class="section-title">Quick Parse</div>
+      <textarea id="parse-input" rows="3" placeholder="Paste customer message here and tap Parse…"></textarea>
+      <button class="btn btn-secondary" style="margin-top:8px" onclick="parseMessage()">Parse Message</button>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Customer</div>
+      <div class="form-group"><label>Name</label><input type="text" id="q-name" placeholder="First Last" oninput="renderPreview()"></div>
+      <div class="grid2">
+        <div class="form-group"><label>Phone</label><input type="tel" id="q-phone" placeholder="021 000 0000"></div>
+        <div class="form-group"><label>Address</label><input type="text" id="q-address" placeholder="123 Main St"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-title">Order</div>
+      <div class="grid2">
+        <div class="form-group">
+          <label>Wood Type</label>
+          <select id="q-wood" onchange="onWoodChange()">
+            <option>Pine</option><option>Gum</option><option>Macro</option><option>Poplar</option><option>Black Poplar</option><option>Mixed</option><option>Hot Mix</option><option>OMP</option>
+          </select>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;text-transform:none;letter-spacing:0;cursor:pointer;font-weight:600">
+              <input type="radio" name="q-seasoned" id="q-dry" value="dry" checked onchange="onWoodChange()">
+              <span style="background:#b45309;color:#fff;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700">DRY</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;text-transform:none;letter-spacing:0;cursor:pointer;font-weight:600">
+              <input type="radio" name="q-seasoned" id="q-green" value="green" onchange="onWoodChange()">
+              <span style="background:#16a34a;color:#fff;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700">GREEN</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-group"><label>Cubic Metres</label><input type="number" id="q-cubes" value="4" min="0.5" step="0.5" oninput="calcQuote()"></div>
+      </div>
+      <div class="grid2">
+        <div class="form-group"><label>Price / Cube ($)</label><input type="number" id="q-price" value="135" oninput="calcQuote()"></div>
+        <div class="form-group">
+          <label>Delivery Area</label>
+          <select id="q-area" onchange="onAreaChange()"></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Delivery Fee ($)</label><input type="number" id="q-delivery" value="35" oninput="calcQuote()"></div>
+      <div class="form-group"><label>Supplier</label><select id="q-supplier" onchange="updatePriceFromSupplier();calcQuote();renderSupplierInfo()"><option value="">— Not assigned —</option></select></div>
+      <div id="q-supplier-info"></div>
+      <div class="form-group"><label>Notes</label><textarea id="q-notes" placeholder="Gate code, special instructions…"></textarea></div>
+      <div class="divider"></div>
+      <div class="price-row"><span>Wood</span><span id="s-wood">—</span></div>
+      <div class="price-row"><span>Delivery</span><span id="s-delivery">—</span></div>
+      <div class="price-row total"><span>Customer Total</span><span id="s-total">—</span></div>
+      <div class="price-row cut" style="margin-top:6px"><span>Your cut</span><span id="s-cut">—</span></div>
+    </div>
+
+    <div id="standard-preview-section">
+      <div class="section-title">Payment Message</div>
+      <div class="quote-preview" id="quote-preview"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="copyMsg()">Copy Message</button>
+        <button class="btn btn-primary" onclick="savePending()">Save as Pending</button>
+      </div>
+    </div>
+    <div id="winz-preview-section" style="display:none">
+      <div class="section-title">WINZ Quote Preview</div>
+      <div class="quote-preview" id="winz-preview" style="border-color:var(--blue)"></div>
+      <div class="btn-row">
+        <button class="btn btn-blue" onclick="downloadWinzPDF()">⬇ Generate PDF</button>
+        <button class="btn btn-primary" onclick="savePending()">Save as Pending</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ORDERS TAB ===== -->
+  <div id="tab-orders" class="tab-content">
+    <div class="filter-tabs">
+      <button class="ftab active" onclick="setFilter('all',this)">All</button>
+      <button class="ftab" onclick="setFilter('pending',this)">Pending</button>
+      <button class="ftab" onclick="setFilter('paid',this)">Paid</button>
+      <button class="ftab" onclick="setFilter('assigned',this)">Assigned</button>
+      <button class="ftab" onclick="setFilter('delivered',this)">Delivered</button>
+    </div>
+    <div id="orders-list"></div>
+  </div>
+
+  <!-- ===== CUSTOMERS TAB ===== -->
+  <div id="tab-customers" class="tab-content">
+    <div id="customers-list"></div>
+  </div>
+
+  <!-- ===== SUPPLIERS TAB ===== -->
+  <div id="tab-suppliers" class="tab-content">
+    <button class="btn btn-primary" style="margin-bottom:14px" onclick="openSupplierModal(null)">+ Add Supplier</button>
+    <div id="suppliers-list"></div>
+  </div>
+
+  <!-- ===== DASHBOARD TAB ===== -->
+  <!-- ===== HOME TAB ===== -->
+  <div id="tab-home" class="tab-content active">
+    <div class="section-title">Stock on Hand</div>
+    <div id="h-stock"></div>
+    <div class="section-title">This Month's Sales</div>
+    <div class="stats-grid" style="margin-bottom:10px">
+      <div class="stat-card"><div class="stat-value" id="h-mrev">$0</div><div class="stat-label">Revenue</div></div>
+      <div class="stat-card"><div class="stat-value" id="h-morders">0</div><div class="stat-label">Orders</div></div>
+      <div class="stat-card"><div class="stat-value" id="h-mcubes">0</div><div class="stat-label">Cubes Sold</div></div>
+    </div>
+    <div id="h-month-breakdown"></div>
+  </div>
+
+  <div id="tab-dashboard" class="tab-content">
+    <div class="section-title">Overview</div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value" id="d-rev">$0</div><div class="stat-label">Revenue</div></div>
+      <div class="stat-card"><div class="stat-value" id="d-cut">$0</div><div class="stat-label">Your Cut</div></div>
+      <div class="stat-card"><div class="stat-value" id="d-orders">0</div><div class="stat-label">Orders</div></div>
+      <div class="stat-card"><div class="stat-value" id="d-cubes">0</div><div class="stat-label">Cubes Sold</div></div>
+      <div class="stat-card"><div class="stat-value" id="d-avg">$0</div><div class="stat-label">Avg Order</div></div>
+      <div class="stat-card"><div class="stat-value" id="d-pending">0</div><div class="stat-label">Awaiting Payment</div></div>
+    </div>
+    <div class="section-title">Supplier Payables</div>
+    <div id="d-suppliers"></div>
+    <div class="section-title">12-Month Trend</div>
+    <div class="chart-wrap"><svg id="trend-svg" width="100%" height="160"></svg></div>
+  </div>
+
+  <!-- ===== SETTINGS TAB ===== -->
+  <div id="tab-settings" class="tab-content">
+    <div class="card">
+      <div class="section-title">Default Wood Prices</div>
+      <div id="wood-prices-list"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Delivery Areas</div>
+      <div id="areas-list"></div>
+      <button class="btn btn-secondary" style="margin-top:10px" onclick="addAreaPrompt()">+ Add Area</button>
+    </div>
+    <div class="card">
+      <div class="section-title">Firebase Sync</div>
+      <div class="form-group"><label>API Key</label><input type="text" id="fb-key" placeholder="AIza…"></div>
+      <div class="form-group"><label>Project ID</label><input type="text" id="fb-proj" placeholder="my-project-id"></div>
+      <div class="form-group"><label>App ID</label><input type="text" id="fb-app" placeholder="1:xxx:web:xxx"></div>
+      <button class="btn btn-primary" onclick="saveFbConfig()">Connect Firebase</button>
+      <div id="fb-links" style="display:none;margin-top:14px"></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.6">
+        Create a free project at <strong>firebase.google.com</strong> → Project Settings → Add Web App → copy the config values above.
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Weekly Supplier Emails</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div>
+          <div style="font-size:14px;font-weight:600">Auto-send every week</div>
+          <div style="font-size:12px;color:var(--muted)" id="email-status-text">Loading…</div>
+        </div>
+        <button id="email-toggle-btn" class="btn btn-secondary" style="min-width:80px" onclick="toggleWeeklyEmail()">…</button>
+      </div>
+      <button class="btn btn-primary" onclick="sendEmailsNow()">Send Stock Requests Now</button>
+      <div style="font-size:12px;color:var(--muted);margin-top:10px">Sends the stock update link to all suppliers immediately.</div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- Print layer (only visible when printing) -->
+<div id="print-layer"></div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="goTab('home',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Home
+  </button>
+  <button class="nav-btn" onclick="goTab('quote',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+    Quote
+  </button>
+  <button class="nav-btn" onclick="goTab('orders',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    Orders
+  </button>
+  <button class="nav-btn" onclick="goTab('customers',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Clients
+  </button>
+  <button class="nav-btn" onclick="goTab('suppliers',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16,8 20,8 23,11 23,16 16,16 16,8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+    Suppliers
+  </button>
+  <button class="nav-btn" onclick="goTab('dashboard',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+    Stats
+  </button>
+  <button class="nav-btn" onclick="goTab('settings',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    Settings
+  </button>
+</nav>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="maybeCloseModal(event)">
+  <div class="modal" id="modal-box">
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ─── CONSTANTS ───────────────────────────────────────────────
+const BANK = 'DELTA WAITE\n02-0940-0094086-004';
+const CUT_PER_CUBE = 10;
+const CUT_DELIVERY = 10;
+const WINZ_SUPPLIER_ID = 'CUR003063557';
+const WINZ_PHONE = '021 250 6745';
+const WINZ_EMAIL = 'Fireside13a@gmail.com';
+const LOGO_B64 = '/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCABZAFsDASIAAhEBAxEB/8QAGgABAAIDAQAAAAAAAAAAAAAAAAcIBAUGA//EADMQAAAGAgAEBAQEBwEAAAAAAAABAgMEBQYRBxIhMQgTQVEUFSKBUmFxoSMyQpGSscGC/8QAFwEBAQEBAAAAAAAAAAAAAAAAAAIBA//EABoRAQADAQEBAAAAAAAAAAAAAAABAhEhEkH/2gAMAwEAAhEDEQA/ALlgAAAAAAAAAAAAAAAAAAAAAAAAAAADDu7ODTVMm1sn0x4kVs3HXFehF/38gGvxzKKy7nWNawvyrCtfNmVFWZc6DLsovdJl1I/9GN4KPN8RbGLxbkZ1B5mTflmtbP42TPRoV/5Ivv1F2a2YxYV0afFcJyPJaS80suykqIjI/wCxia21Vq4yAABSQAAAAAAAAAHlMkMRIrsqU6hlhlBrccWeiSki2ZmYp/x44ryM3mnU1SlsUMde0l2VJUX9avy9i+/ftKni8yV+txKBj8VakKtHVKfUk9fwm9fT91KL/EV44eYfbZvkjVNVIIjMud55RHyMoLupX+tepjnefkOlI+y5wXo4HKdXwkxs3jUavgkkXN35SMyT+2hS7IahFPlsyjekn5cWWqOp5SNdEq0atfvoTvwE4lrn8S3cdSl1qllRksVjC1b8jyGyJO/Y1ISe9euhlJyW3jYWNAAHVyAAAAAAAAAAQZ4vsbkWOLV2QRUKX8sdUh9KS3ptzX1fY0l/kPXwf00eNgs665C+JmzFNmr2bQRaL+5q/YTVKYZlRnY0lpDrLqDQ42stpUky0ZGXsOewHEIWGRJ1dVOK+XPyjkssr6myaiIlJJXqn6SMvXv3E53VbzFePFDhD0bP27WpjKdTaRXZTzaOppUyRearXtymlR/caTwuUsqz4rQ5rSD+HrWnH31+hbSaEl+pmovsRi2dtRwbGX8a+3zSkRHYrKldSbS7rn0XufKn7F+o0/DHBKjA6H5dXEbr7pkuVJWWlvK/4Rehegzz3W+uY6wAAWgAAAAAAEdcQ+LVbiGbVuGoxrIr+5sYq5bLFUw0vTaTMjMzW4n2MZKOJ9UjNsVw+wqLett8kgvTI7EltBGwTaTUaHeVRkStJV2M+2vURtxawy5yfxUYq7FlZLT17dA+h23qU8hsr5lmSDdUhSC306GWz2MjLMbuY/ip4UyWmLi0r6yomsSrR9o3CJRsPJSbziUkglqMy9tmfYBmMeJnD1oOa9jGXR6RNodWq4XBbOIl8j1ozS4ai9D/AJR0WS8Zq6r4hzMFrMPyvI7aFEblyPlcZlaG21kRkZmtxP4k+nr+orLXYHncThQi9eprqxq6zNXpdhibsJxCpzRqbJL6CSROGZbP3T660R77LNoCy8S97klrB4m19JYUkM4cvGI0pC1rJDe23DaTvRaPaT7GXUBNWY8ZqbHcoaxZrGsnu704BWEiBVw0PORWTLu5tZFv8kmfpreyGwXxUoE5BhVMuFaNyMwYefgk6x5Zsk2glml1JntJ9da0fUQv4goNdNyVF9TY5xQrcsap2jqL2kiOKTKUadpZkJL6kmRnpXNynre+xEeYms4hWPEbgJbZdVTXrWJEnncSG4xmiOpTaeTzVJLlQoy1vt13oB1zniMoPKuJsfB84mVNNNdhzrONXtuR2ltnpSj07zcpd98vQj6jeZXxuxWlpsUtK+DcZGjK1miqaqmELccMiIzIyWtGj2ejLuR732EK8PcjusIwziLisjh1mljcW95YKgtsUzhx3EvFypWp0yJPJvv36dhq8v4eZLjHDjgrW21Zkqzqpj71svH23HZUEnTJekqa2aVJ3rZdNkejMBbbELp+/pG7KTQ2tGtalJ+EskIS+kiPWzJClERH3LqNuOP4PyYMjCY6a93K3WWnFo58lbeTNUe9/UbpEpRdeh9tdPQdgAAAAAAAAAAAAAAAAAAAAA//2Q==';
+
+// ─── STATE ───────────────────────────────────────────────────
+let woodPrices = load('woodPrices', {Pine:135,Gum:160,Macro:160,Poplar:135,'Black Poplar':135,Mixed:150,'Hot Mix':160,OMP:145});
+let isWinzMode = false;
+let areas      = load('areas', [{name:'Oamaru',fee:35}]);
+let orders     = load('orders', []);
+let suppliers  = load('suppliers', [
+  {id:'smiley',name:'Smiley',phone:'',email:'',deliveryFee:35,woodTypes:[
+    {type:'Pine (Dry)',cost:0,avail:true,cubes:0},{type:'Pine (Green)',cost:0,avail:true,cubes:0},{type:'Gum (Dry)',cost:0,avail:true,cubes:0},{type:'Gum (Green)',cost:0,avail:true,cubes:0},{type:'Macro (Dry)',cost:0,avail:true,cubes:0},{type:'Macro (Green)',cost:0,avail:true,cubes:0},{type:'Poplar (Dry)',cost:0,avail:true,cubes:0},{type:'Poplar (Green)',cost:0,avail:true,cubes:0},{type:'Black Poplar (Dry)',cost:0,avail:true,cubes:0},{type:'Black Poplar (Green)',cost:0,avail:true,cubes:0}
+  ]},
+  {id:'simon',name:'Simon',phone:'',email:'',deliveryFee:35,woodTypes:[
+    {type:'Pine (Dry)',cost:0,avail:true,cubes:0},{type:'Pine (Green)',cost:0,avail:true,cubes:0},{type:'Gum (Dry)',cost:0,avail:true,cubes:0},{type:'Gum (Green)',cost:0,avail:true,cubes:0},{type:'Macro (Dry)',cost:0,avail:true,cubes:0},{type:'Macro (Green)',cost:0,avail:true,cubes:0},{type:'Poplar (Dry)',cost:0,avail:true,cubes:0},{type:'Poplar (Green)',cost:0,avail:true,cubes:0},{type:'Black Poplar (Dry)',cost:0,avail:true,cubes:0},{type:'Black Poplar (Green)',cost:0,avail:true,cubes:0}
+  ]}
+]);
+let orderFilter = 'all';
+let currentTab  = 'home';
+
+function load(k, def){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):def; }catch(e){ return def; } }
+function persist(){
+  localStorage.setItem('woodPrices',JSON.stringify(woodPrices));
+  localStorage.setItem('areas',JSON.stringify(areas));
+  localStorage.setItem('orders',JSON.stringify(orders));
+  localStorage.setItem('suppliers',JSON.stringify(suppliers));
+  persistFirebase();
+}
+
+// ─── NAV ─────────────────────────────────────────────────────
+function goTab(tab, el){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(el) el.classList.add('active');
+  currentTab = tab;
+  if(tab==='home') renderHome();
+  if(tab==='orders') renderOrders();
+  if(tab==='customers') renderCustomers();
+  if(tab==='suppliers') renderSuppliers();
+  if(tab==='dashboard') renderDashboard();
+  if(tab==='settings') renderSettings();
+}
+
+// ─── QUOTE ───────────────────────────────────────────────────
+function onWoodChange(){
+  updatePriceFromSupplier();
+  calcQuote();
+  recommendSuppliers();
+}
+function getSeasoned(){ return document.querySelector('input[name="q-seasoned"]:checked')?.value||'dry'; }
+function updatePriceFromSupplier(){
+  const wood = document.getElementById('q-wood').value;
+  const seasoned = getSeasoned();
+  const sid  = document.getElementById('q-supplier').value;
+  const s    = sid ? suppliers.find(x=>x.id===sid) : null;
+  const wt   = s ? s.woodTypes.find(w=>w.type===wood&&(w.seasoned||'dry')===seasoned) : null;
+  document.getElementById('q-price').value = (wt && wt.cost) ? wt.cost : (woodPrices[wood]||135);
+}
+function recommendSuppliers(){
+  const wood = document.getElementById('q-wood').value;
+  const seasoned = getSeasoned();
+  const box  = document.getElementById('q-supplier-info');
+  const sel  = document.getElementById('q-supplier');
+  if(!box) return;
+  if(sel.value){ renderSupplierInfo(); return; }
+  const label = seasoned==='green'?'<span style="background:#16a34a;color:#fff;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:700">GREEN</span>':'<span style="background:#b45309;color:#fff;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:700">DRY</span>';
+  const matches = suppliers.filter(s => {
+    const wt = s.woodTypes.find(w => w.type===wood && (w.seasoned||'dry')===seasoned);
+    return wt && wt.avail;
+  });
+  if(!matches.length){
+    box.innerHTML=`<div style="background:var(--bg);border:1px solid var(--danger);border-radius:10px;padding:10px;margin-top:-4px;margin-bottom:6px;font-size:13px;color:var(--danger)">
+      ⚠ No suppliers have <strong>${wood}</strong> ${label} available.
+    </div>`;
+    return;
+  }
+  box.innerHTML=`<div style="background:var(--bg);border:1px solid #22c55e55;border-radius:10px;padding:10px;margin-top:-4px;margin-bottom:6px">
+    <div style="font-size:11px;color:#22c55e;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">✓ Suppliers with ${wood} ${label}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${matches.map(s=>{
+        const wt=s.woodTypes.find(w=>w.type===wood&&(w.seasoned||'dry')===seasoned);
+        const cubes=wt?wt.cubes||0:0;
+        return `<button onclick="document.getElementById('q-supplier').value='${s.id}';updatePriceFromSupplier();calcQuote();renderSupplierInfo()" style="background:var(--card);border:1px solid #22c55e88;border-radius:8px;padding:8px 14px;cursor:pointer;text-align:left">
+          <div style="font-weight:700;font-size:14px;color:var(--fg)">${s.name}</div>
+          <div style="font-size:12px;color:${cubes>0?'#22c55e':'var(--muted)'}">${cubes>0?cubes+'m³ available':'stock not set'}</div>
+          ${wt&&wt.cost?`<div style="font-size:11px;color:var(--muted)">$${wt.cost}/m³</div>`:''}
+        </button>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+function onAreaChange(){
+  const name = document.getElementById('q-area').value;
+  const a = areas.find(x=>x.name===name);
+  document.getElementById('q-delivery').value = a ? a.fee : 35;
+  calcQuote();
+}
+function calcQuote(){
+  const cubes = parseFloat(document.getElementById('q-cubes').value)||0;
+  const price = parseFloat(document.getElementById('q-price').value)||0;
+  const del   = parseFloat(document.getElementById('q-delivery').value)||0;
+  const wood  = cubes*price;
+  const total = wood+del;
+  const cut   = cubes*CUT_PER_CUBE + CUT_DELIVERY;
+  document.getElementById('s-wood').textContent    = '$'+wood.toFixed(0);
+  document.getElementById('s-delivery').textContent= '$'+del.toFixed(0);
+  document.getElementById('s-total').textContent   = '$'+total.toFixed(0);
+  document.getElementById('s-cut').textContent     = '$'+cut.toFixed(0);
+  if(isWinzMode) renderWinzPreview(); else renderPreview();
+}
+function renderPreview(){
+  const name   = document.getElementById('q-name').value.trim()||'Customer';
+  const cubes  = parseFloat(document.getElementById('q-cubes').value)||0;
+  const wood   = document.getElementById('q-wood').value;
+  const price  = parseFloat(document.getElementById('q-price').value)||0;
+  const del    = parseFloat(document.getElementById('q-delivery').value)||0;
+  const total  = cubes*price+del;
+  const surname= name.split(' ').pop();
+  const msg =
+`Hello,
+
+Thanks for your ${cubes}m³ ${wood.toLowerCase()} firewood order — please pay $${total.toFixed(0)} into:
+
+${BANK}
+Reference: ${surname}
+
+Flick us a message once paid and we'll get your delivery sorted.
+
+Thanks from the Fireside team!`;
+  document.getElementById('quote-preview').textContent = msg;
+  return msg;
+}
+function copyMsg(){
+  navigator.clipboard.writeText(renderPreview()).then(()=>toast('Message copied!'));
+}
+function savePending(){
+  const name = document.getElementById('q-name').value.trim();
+  if(!name){ toast('Enter a customer name'); return; }
+  const cubes = parseFloat(document.getElementById('q-cubes').value)||0;
+  if(!cubes){ toast('Enter cubic metres'); return; }
+  const order = {
+    id:'o'+Date.now(),
+    customerName: name,
+    phone: document.getElementById('q-phone').value.trim(),
+    address: document.getElementById('q-address').value.trim(),
+    woodType: document.getElementById('q-wood').value,
+    seasoned: getSeasoned(),
+    cubes,
+    pricePerCube: parseFloat(document.getElementById('q-price').value)||0,
+    deliveryArea: document.getElementById('q-area').value,
+    deliveryFee: parseFloat(document.getElementById('q-delivery').value)||0,
+    notes: document.getElementById('q-notes').value.trim(),
+    status: document.getElementById('q-supplier').value ? 'assigned' : 'pending',
+    supplierId: document.getElementById('q-supplier').value || null,
+    isWinz: isWinzMode,
+    winzQuoteNo: isWinzMode ? (document.getElementById('w-quoteNo').value||'') : null,
+    createdAt: new Date().toISOString(),
+    paidAt: null, assignedAt: null, deliveredAt: null
+  };
+  orders.unshift(order);
+  persist();
+  if(order.supplierId) adjustStock(order.supplierId, order.woodType, order.cubes, -1);
+  toast(order.supplierId ? 'Saved & supplier assigned!' : 'Saved as pending!');
+  // clear form
+  ['q-name','q-phone','q-address','q-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('q-cubes').value='4';
+  document.getElementById('q-wood').value='Pine';
+  document.getElementById('q-supplier').value='';
+  onWoodChange();
+}
+function parseMessage(){
+  const txt = document.getElementById('parse-input').value.trim();
+  if(!txt) return;
+
+  // Words that should never appear in a name
+  const STOP = /^(here|from|calling|ringing|and|at|in|on|can|for|to|the|a|an|i|we|please|thanks|hi|hello|hey|my|your|just|looking|after|about|like|some|want|need|would|could|get|buy|order|if|do|be|have|had|was|is|are|will|may|ok|okay|sure|cheers|after|with|it|its|also)$/i;
+
+  // Given a raw captured string, return only the leading name words (stops at first stop word or digit)
+  function extractName(raw) {
+    const words = raw.trim().split(/\s+/);
+    const out = [];
+    for(const w of words) {
+      if(!w || STOP.test(w) || /\d/.test(w)) break;
+      if(!/^[A-Za-z]/.test(w)) break;
+      out.push(w);
+      if(out.length >= 3) break;
+    }
+    return out.join(' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  let name = '';
+
+  // Try: "hello/hi/hey ... it's/this is NAME ... here/from"
+  let m = txt.match(/(?:hello|hi|hey|kia ora).*?(?:it'?s|i'?m|this is|i am|my name is)\s+(.+?)(?:\s+(?:here|from|calling|ringing)|[,.\n!?]|$)/i);
+  // Try: "it's/i'm/my name is NAME [here/from/,]"
+  if(!m) m = txt.match(/(?:it'?s|i'?m|this is|i am|my name is)\s+(.+?)(?:\s+(?:here|from|calling)|[,.\n!?]|$)/i);
+  // Try: "NAME here [...]"
+  if(!m) m = txt.match(/^(.+?)\s+here\b/im);
+  if(!m) m = txt.match(/\b(.+?)\s+here\b/i);
+  // Try: "NAME calling" / "NAME speaking"
+  if(!m) m = txt.match(/\b(.+?)\s+(?:calling|speaking|ringing)\b/i);
+  // Try: message starts with "Firstname Lastname," or "Firstname Lastname\n"
+  if(!m) m = txt.match(/^([A-Z][a-z]+ [A-Z][a-z]+)[,\n]/m);
+
+  if(m) name = extractName(m[1]);
+
+  // Cubes
+  const cm = txt.match(/(\d+(?:\.\d+)?)\s*(?:m³|m3|cubic|cubes?|(?<!\d)m(?!\d))/i);
+  const cubes = cm ? cm[1] : '';
+
+  // Wood type
+  const isGreen = /\bgreen\b|\bwet\b|\bunseasoned\b|\bfresh\b/i.test(txt);
+  let wood = 'Pine';
+  if(/hot[\s-]*mix/i.test(txt)) wood='Hot Mix';
+  else if(/\bomp\b/i.test(txt)) wood='OMP';
+  else if(/black[\s-]*poplar/i.test(txt)) wood='Black Poplar';
+  else if(/poplar/i.test(txt)) wood='Poplar';
+  else if(/\bgum\b/i.test(txt)) wood='Gum';
+  else if(/macro/i.test(txt)) wood='Macro';
+  else if(/pine/i.test(txt)) wood='Pine';
+  else if(/mixed/i.test(txt)) wood='Mixed';
+  // Set dry/green radio
+  const seasonedVal = isGreen ? 'green' : 'dry';
+  const seasonedRadio = document.querySelector(`input[name="q-seasoned"][value="${seasonedVal}"]`);
+  if(seasonedRadio) seasonedRadio.checked = true;
+
+  // Phone — NZ mobile/landline formats
+  const pm = txt.match(/(?:\+?64\s?|0)[2-9][\d\s-]{6,10}\d/);
+  const phone = pm ? pm[0].replace(/\s+/g,' ').trim() : '';
+
+  // Address — number + street name + type
+  const am = txt.match(/\d+[a-z]?\s+[A-Za-z\s]+?(?:street|st|road|rd|avenue|ave|drive|dr|place|pl|crescent|cr|lane|ln|way|terrace|tce|close|cl|court|ct)\b/i);
+  const addr = am ? am[0].trim() : '';
+
+  if(name) document.getElementById('q-name').value = name;
+  if(cubes) document.getElementById('q-cubes').value = cubes;
+  if(phone) document.getElementById('q-phone').value = phone;
+  if(addr)  document.getElementById('q-address').value = addr;
+  document.getElementById('q-wood').value = wood;
+  document.getElementById('parse-input').value = '';
+  onWoodChange(); // also calls recommendSuppliers
+  toast('Parsed!');
+}
+
+// ─── ORDERS ──────────────────────────────────────────────────
+function setFilter(f, el){
+  orderFilter = f;
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderOrders();
+}
+function renderOrders(){
+  const list = document.getElementById('orders-list');
+  let rows = orders;
+  if(orderFilter!=='all') rows = orders.filter(o=>o.status===orderFilter);
+  if(!rows.length){ list.innerHTML='<div class="empty">No orders</div>'; return; }
+  list.innerHTML = rows.map(o=>{
+    const total = (o.cubes*o.pricePerCube)+o.deliveryFee;
+    const sup   = o.supplierId ? suppliers.find(s=>s.id===o.supplierId) : null;
+    const date  = new Date(o.createdAt).toLocaleDateString('en-NZ',{day:'numeric',month:'short'});
+    return `<div class="order-card">
+      <div class="order-header">
+        <div>
+          <div class="order-name">${o.customerName}</div>
+          <div class="order-meta">${o.cubes}m³ ${o.woodType}${o.seasoned?` <span style="font-size:9px;font-weight:700;background:${o.seasoned==='green'?'#16a34a':'#b45309'};color:#fff;border-radius:3px;padding:1px 4px;vertical-align:middle">${o.seasoned.toUpperCase()}</span>`:''} · $${total}</div>
+          ${o.phone?`<div class="order-meta">${o.phone}</div>`:''}
+          ${o.address?`<div class="order-meta">${o.address}</div>`:''}
+          ${o.notes?`<div class="order-meta" style="color:var(--warning)">📝 ${o.notes}</div>`:''}
+          ${sup?`<div class="order-meta">Supplier: ${sup.name}</div>`:''}
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <span class="badge badge-${o.status}">${o.status}</span>
+          ${o.isWinz?`<span class="badge badge-winz" style="margin-left:4px">WINZ${o.winzQuoteNo?' #'+o.winzQuoteNo:''}</span>`:''}
+          <div class="order-meta" style="margin-top:4px">${date}</div>
+        </div>
+      </div>
+      <div class="order-actions">
+        ${o.status==='pending'?`<button class="btn btn-success btn-sm" onclick="markPaid('${o.id}')">Mark Paid</button>`:''}
+        ${o.status==='paid'?`<button class="btn btn-blue btn-sm" onclick="openAssign('${o.id}')">Assign Supplier</button>`:''}
+        ${o.status==='assigned'?`<button class="btn btn-success btn-sm" onclick="markDelivered('${o.id}')">Mark Delivered</button>`:''}
+        ${o.supplierId?`<button class="btn btn-secondary btn-sm" onclick="copySupMsg('${o.id}')">Copy Supplier Msg</button>`:''}
+        <button class="btn btn-secondary btn-sm" onclick="openEditOrder('${o.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function markPaid(id){
+  const o=orders.find(x=>x.id===id);
+  if(o){o.status='paid';o.paidAt=new Date().toISOString();persist();renderOrders();toast('Marked as paid!');}
+}
+function markDelivered(id){
+  const o=orders.find(x=>x.id===id);
+  if(o){o.status='delivered';o.deliveredAt=new Date().toISOString();persist();renderOrders();toast('Marked as delivered!');}
+}
+// Adjust a supplier's stock for a given wood type. delta is negative to deduct, positive to restore.
+function adjustStock(supplierId, woodType, cubes, delta){
+  if(!supplierId||!woodType||!cubes) return;
+  const s=suppliers.find(x=>x.id===supplierId);
+  if(!s) return;
+  const wt=s.woodTypes.find(w=>w.type===woodType);
+  if(!wt) return;
+  wt.cubes=Math.max(0,(wt.cubes||0)+(delta*cubes));
+  persist();
+  renderSuppliers();
+  refreshSupplierDropdown();
+}
+function delOrder(id){
+  const o=orders.find(x=>x.id===id);
+  if(!o) return;
+  showModal('Delete Order',`
+    <p style="margin-bottom:16px;color:var(--fg)">Delete order for <strong>${o.customerName}</strong> (${o.cubes}m³ ${o.woodType})? This cannot be undone.</p>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelOrder('${id}')">Delete</button>
+    </div>
+  `);
+}
+function confirmDelOrder(id){
+  const o=orders.find(x=>x.id===id);
+  if(o&&o.supplierId) adjustStock(o.supplierId, o.woodType, o.cubes, +1);
+  orders=orders.filter(x=>x.id!==id); persist(); closeModal(); renderOrders(); toast('Order deleted');
+}
+function openAssign(orderId){
+  if(!suppliers.length){toast('No suppliers added yet');return;}
+  showModal('Assign Supplier',
+    suppliers.map(s=>`<button class="btn btn-secondary" style="margin-bottom:8px" onclick="doAssign('${orderId}','${s.id}')">${s.name}</button>`).join('')
+    +`<button class="btn btn-secondary" style="margin-top:4px" onclick="closeModal()">Cancel</button>`
+  );
+}
+function doAssign(orderId, supId){
+  const o=orders.find(x=>x.id===orderId);
+  if(!o) return;
+  const oldSup=o.supplierId;
+  if(oldSup && oldSup!==supId) adjustStock(oldSup, o.woodType, o.cubes, +1); // restore old
+  if(supId!==oldSup) adjustStock(supId, o.woodType, o.cubes, -1); // deduct new
+  o.supplierId=supId; o.status='assigned'; o.assignedAt=new Date().toISOString();
+  persist(); closeModal(); renderOrders(); toast('Supplier assigned!');
+}
+function copySupMsg(id){
+  const o=orders.find(x=>x.id===id);
+  const s=o?suppliers.find(x=>x.id===o.supplierId):null;
+  if(!o||!s) return;
+  const msg=`Hi ${s.name},\n\nDelivery required:\nCustomer: ${o.customerName}\nPhone: ${o.phone||'TBC'}\nAddress: ${o.address||'TBC'}\nWood: ${o.cubes}m³ ${o.woodType}${o.notes?'\nNotes: '+o.notes:''}\n\nThanks!`;
+  navigator.clipboard.writeText(msg).then(()=>toast('Supplier message copied!'));
+}
+function openEditOrder(id){
+  const o=orders.find(x=>x.id===id);
+  if(!o) return;
+  showModal('Edit Order',`
+    <div class="form-group"><label>Name</label><input id="eo-name" value="${o.customerName}"></div>
+    <div class="form-group"><label>Phone</label><input id="eo-phone" value="${o.phone||''}"></div>
+    <div class="form-group"><label>Address</label><input id="eo-address" value="${o.address||''}"></div>
+    <div class="grid2">
+      <div class="form-group"><label>Wood</label>
+        <select id="eo-wood">${['Pine','Gum','Macro','Poplar','Black Poplar','Mixed','Hot Mix','OMP'].map(w=>`<option${w===o.woodType?' selected':''}>${w}</option>`).join('')}</select>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;text-transform:none;letter-spacing:0;cursor:pointer"><input type="radio" name="eo-seasoned" value="dry" ${(o.seasoned||'dry')==='dry'?'checked':''}><span style="background:#b45309;color:#fff;border-radius:3px;padding:1px 7px;font-size:11px;font-weight:700">DRY</span></label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;text-transform:none;letter-spacing:0;cursor:pointer"><input type="radio" name="eo-seasoned" value="green" ${o.seasoned==='green'?'checked':''}><span style="background:#16a34a;color:#fff;border-radius:3px;padding:1px 7px;font-size:11px;font-weight:700">GREEN</span></label>
+        </div>
+      </div>
+      <div class="form-group"><label>Cubes</label><input type="number" id="eo-cubes" value="${o.cubes}" step="0.5"></div>
+    </div>
+    <div class="grid2">
+      <div class="form-group"><label>Price/Cube</label><input type="number" id="eo-price" value="${o.pricePerCube}"></div>
+      <div class="form-group"><label>Delivery ($)</label><input type="number" id="eo-del" value="${o.deliveryFee}"></div>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="eo-notes">${o.notes||''}</textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditOrder('${id}')">Save</button>
+    </div>
+  `);
+}
+function saveEditOrder(id){
+  const o=orders.find(x=>x.id===id);
+  if(!o) return;
+  const oldSup=o.supplierId, oldWood=o.woodType, oldCubes=o.cubes;
+  o.customerName=document.getElementById('eo-name').value.trim();
+  o.phone=document.getElementById('eo-phone').value.trim();
+  o.address=document.getElementById('eo-address').value.trim();
+  o.woodType=document.getElementById('eo-wood').value;
+  o.seasoned=document.querySelector('input[name="eo-seasoned"]:checked')?.value||'dry';
+  o.cubes=parseFloat(document.getElementById('eo-cubes').value)||o.cubes;
+  o.pricePerCube=parseFloat(document.getElementById('eo-price').value)||o.pricePerCube;
+  o.deliveryFee=parseFloat(document.getElementById('eo-del').value)||o.deliveryFee;
+  o.notes=document.getElementById('eo-notes').value.trim();
+  // Adjust stock if the cubes or wood type changed on an assigned order
+  if(oldSup && (oldWood!==o.woodType || oldCubes!==o.cubes)){
+    adjustStock(oldSup, oldWood, oldCubes, +1);   // restore old
+    adjustStock(oldSup, o.woodType, o.cubes, -1); // deduct new
+  }
+  persist(); closeModal(); renderOrders(); toast('Order updated!');
+}
+
+// ─── CUSTOMERS ───────────────────────────────────────────────
+function renderCustomers(){
+  const list=document.getElementById('customers-list');
+  const map={};
+  orders.forEach(o=>{
+    const k=o.customerName.toLowerCase();
+    if(!map[k]) map[k]={name:o.customerName,phone:o.phone,orders:[]};
+    map[k].orders.push(o);
+  });
+  const custs=Object.values(map).sort((a,b)=>a.name.localeCompare(b.name));
+  if(!custs.length){list.innerHTML='<div class="empty">No customers yet</div>';return;}
+  list.innerHTML=custs.map(c=>{
+    const spent=c.orders.reduce((s,o)=>(s+o.cubes*o.pricePerCube+o.deliveryFee),0);
+    const cubes=c.orders.reduce((s,o)=>s+o.cubes,0);
+    return `<div class="customer-card" onclick="showCustHistory('${c.name}')">
+      <div><div style="font-weight:700;font-size:15px">${c.name}</div>
+      <div style="font-size:12px;color:var(--muted)">${c.phone||'No phone'} · ${c.orders.length} order${c.orders.length!==1?'s':''}</div></div>
+      <div style="text-align:right"><div style="color:var(--accent);font-weight:700">$${spent.toFixed(0)}</div>
+      <div style="font-size:11px;color:var(--muted)">${cubes}m³</div></div>
+    </div>`;
+  }).join('');
+}
+function showCustHistory(name){
+  const co=orders.filter(o=>o.customerName.toLowerCase()===name.toLowerCase());
+  const spent=co.reduce((s,o)=>s+o.cubes*o.pricePerCube+o.deliveryFee,0);
+  showModal(name,`
+    <div style="font-size:13px;color:var(--muted);margin-bottom:4px">${co[0]?.phone||''}</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px">${co[0]?.address||''}</div>
+    <div style="color:var(--accent);font-weight:700;margin-bottom:12px">Total spent: $${spent.toFixed(0)}</div>
+    ${co.map(o=>{
+      const t=o.cubes*o.pricePerCube+o.deliveryFee;
+      const d=new Date(o.createdAt).toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'});
+      return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div><div style="font-size:14px">${o.cubes}m³ ${o.woodType}</div><div style="font-size:12px;color:var(--muted)">${d}</div></div>
+        <div style="text-align:right"><div>$${t}</div><span class="badge badge-${o.status}">${o.status}</span></div>
+      </div>`;
+    }).join('')}
+    <button class="btn btn-secondary" style="margin-top:14px" onclick="closeModal()">Close</button>
+  `);
+}
+
+// ─── SUPPLIERS ───────────────────────────────────────────────
+function refreshSupplierDropdown(){
+  const sel=document.getElementById('q-supplier');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— Not assigned —</option>'+
+    suppliers.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  if(cur) sel.value=cur;
+  renderSupplierInfo();
+}
+function renderSupplierInfo(){
+  const sid=document.getElementById('q-supplier').value;
+  const box=document.getElementById('q-supplier-info');
+  if(!sid||!box){if(box)box.innerHTML='';return;}
+  const s=suppliers.find(x=>x.id===sid);
+  if(!s){box.innerHTML='';return;}
+  const avail=s.woodTypes.filter(w=>w.avail);
+  const unavail=s.woodTypes.filter(w=>!w.avail);
+  box.innerHTML=`<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px;margin-top:-4px;margin-bottom:6px">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">${s.name} · stock</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      ${avail.map(w=>{
+        const base=w.type.replace(/ \((Dry|Green)\)$/,'');
+        const tag=w.type.includes('(Green)')?'<span style="font-size:9px;background:#16a34a;color:#fff;border-radius:3px;padding:1px 4px;margin-left:2px">GREEN</span>':w.type.includes('(Dry)')?'<span style="font-size:9px;background:#b45309;color:#fff;border-radius:3px;padding:1px 4px;margin-left:2px">DRY</span>':'';
+        return `<div style="background:var(--card);border:1px solid var(--border);border-radius:7px;padding:5px 9px;text-align:center;min-width:64px">
+          <div style="font-size:10px;color:var(--muted);white-space:nowrap">${base}${tag}</div>
+          <div style="font-size:16px;font-weight:700;color:${(w.cubes||0)>0?'#22c55e':'var(--fg)'}">${w.cubes||0}<span style="font-size:10px;font-weight:400">m³</span></div>
+        </div>`;}).join('')}
+      ${unavail.map(w=>{
+        const base=w.type.replace(/ \((Dry|Green)\)$/,'');
+        const tag=w.type.includes('(Green)')?'<span style="font-size:9px;background:#16a34a;color:#fff;border-radius:3px;padding:1px 4px;margin-left:2px">GREEN</span>':w.type.includes('(Dry)')?'<span style="font-size:9px;background:#b45309;color:#fff;border-radius:3px;padding:1px 4px;margin-left:2px">DRY</span>':'';
+        return `<div style="background:var(--card);border:1px solid var(--border);border-radius:7px;padding:5px 9px;text-align:center;min-width:64px;opacity:.35">
+          <div style="font-size:10px;color:var(--muted);white-space:nowrap">${base}${tag}</div>
+          <div style="font-size:13px;color:var(--danger)">✕</div>
+        </div>`;}).join('')}
+    </div>
+  </div>`;
+}
+function renderSuppliers(){
+  refreshSupplierDropdown();
+  const list=document.getElementById('suppliers-list');
+  if(!suppliers.length){list.innerHTML='<div class="empty">No suppliers yet</div>';return;}
+  list.innerHTML=suppliers.map(s=>`
+    <div class="supplier-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <div style="font-weight:700;font-size:17px">${s.name}</div>
+          <div style="font-size:12px;color:var(--muted)">${s.phone||'No phone'} · Delivery: $${s.deliveryFee}</div>
+          <div style="font-size:11px;margin-top:3px;color:${s.lastUpdated?'#22c55e':'var(--muted)'}">
+            ${s.lastUpdated?'Updated '+formatUpdated(s.lastUpdated):'Never updated'}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+          <button class="btn btn-secondary btn-sm" onclick="sendStockRequest('${s.id}')">Request</button>
+          <button class="btn btn-secondary btn-sm" onclick="shareSupplierPage('${s.id}')">Share</button>
+          <button class="btn btn-secondary btn-sm" onclick="openSupplierModal('${s.id}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="delSupplier('${s.id}')">Delete</button>
+        </div>
+      </div>
+      <div class="divider" style="margin:8px 0"></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+        ${s.woodTypes.filter(wt=>wt.avail).map(wt=>{
+          const seasoned=wt.seasoned||(wt.type.includes('(Green)')?'green':wt.type.includes('(Dry)')?'dry':null);
+          const base=wt.type.replace(/ \((Dry|Green)\)$/i,'');
+          const tag=seasoned==='green'?'<div style="font-size:9px;font-weight:700;background:#16a34a;color:#fff;border-radius:3px;padding:2px 5px;margin-bottom:3px;display:inline-block">GREEN</div>':seasoned==='dry'?'<div style="font-size:9px;font-weight:700;background:#b45309;color:#fff;border-radius:3px;padding:2px 5px;margin-bottom:3px;display:inline-block">DRY</div>':'';
+          return `<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 10px;min-width:72px;text-align:center">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:3px">${base}</div>
+            ${tag}
+            <div style="font-size:18px;font-weight:700;color:${(wt.cubes||0)>0?'#22c55e':'var(--accent)'}">${wt.cubes||0}<span style="font-size:11px;font-weight:400">m³</span></div>
+            ${wt.cost?`<div style="font-size:11px;color:var(--muted)">$${wt.cost}/m³</div>`:''}
+          </div>`;}).join('')}
+        ${s.woodTypes.filter(wt=>!wt.avail).map(wt=>{
+          const base=wt.type.replace(/ \((Dry|Green)\)$/i,'');
+          return `<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 10px;min-width:72px;text-align:center;opacity:.4">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:2px">${base}</div>
+            <div style="font-size:13px;color:var(--danger)">✕</div>
+          </div>`;}).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+function openSupplierModal(sid){
+  const s = sid ? suppliers.find(x=>x.id===sid) : null;
+  const baseWoods=['Pine','Gum','Macro','Poplar','Black Poplar','Mixed','Hot Mix','OMP'];
+  // Build editable rows: one per existing wood type entry, plus blank rows for base woods not yet added
+  const existing = s ? s.woodTypes : [];
+  // Normalise old-style names (e.g. "Pine (Dry)" → {type:'Pine',seasoned:'dry'})
+  const rows = existing.map(w=>{
+    let type=w.type, seasoned=w.seasoned||null;
+    const dm=type.match(/^(.+?)\s+\((Dry|Green)\)$/i);
+    if(dm){type=dm[1];seasoned=dm[2].toLowerCase();}
+    return {...w,type,seasoned};
+  });
+  // Add blank rows for base woods not yet represented
+  baseWoods.forEach(bw=>{
+    if(!rows.find(r=>r.type===bw&&!r.seasoned||r.type===bw)) return; // already has entry
+  });
+  const allEntries = rows.length ? rows : baseWoods.map(t=>({type:t,seasoned:'dry',cost:0,avail:false,cubes:0}));
+
+  const rowHtml = allEntries.map((w,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px" id="srow-${i}">
+      <input type="checkbox" class="toggle-cb" id="sw-a-${i}" ${w.avail?'checked':''}>
+      <label for="sw-a-${i}" style="flex:1;margin:0;text-transform:none;letter-spacing:0;font-size:14px;cursor:pointer">${w.type}</label>
+      <select id="sw-s-${i}" style="width:72px;padding:5px 4px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px">
+        <option value="dry" ${(w.seasoned||'dry')==='dry'?'selected':''}>🟤 Dry</option>
+        <option value="green" ${w.seasoned==='green'?'selected':''}>🟢 Green</option>
+      </select>
+      <input type="number" id="sw-k-${i}" value="${w.cubes||0}" style="width:60px" title="Cubes">
+      <input type="number" id="sw-c-${i}" value="${w.cost||0}" style="width:72px" title="$/m³">
+    </div>`).join('');
+
+  showModal(s?'Edit Supplier':'Add Supplier',`
+    <div class="form-group"><label>Name</label><input id="sp-name" value="${s?s.name:''}"></div>
+    <div class="grid2">
+      <div class="form-group"><label>Phone</label><input id="sp-phone" value="${s?s.phone||'':''}"></div>
+      <div class="form-group"><label>Delivery Fee ($)</label><input type="number" id="sp-del" value="${s?s.deliveryFee:35}"></div>
+    </div>
+    <div class="form-group"><label>Email</label><input type="email" id="sp-email" value="${s?s.email||'':''}"></div>
+    <div class="section-title" style="margin-top:4px">Wood Types & Stock</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:0 2px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">
+      <span style="width:22px"></span><span style="flex:1">Type</span><span style="width:72px;text-align:center">Dry/Green</span><span style="width:60px;text-align:center">Cubes</span><span style="width:72px;text-align:center">$/m³</span>
+    </div>
+    ${rowHtml}
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSupplier('${sid||''}',${allEntries.length})">Save</button>
+    </div>
+  `);
+}
+function saveSupplier(sid, rowCount){
+  const wtData=[];
+  for(let i=0;i<rowCount;i++){
+    const avail=document.getElementById('sw-a-'+i)?.checked||false;
+    const row=document.getElementById('srow-'+i);
+    if(!row) continue;
+    const label=row.querySelector('label');
+    const type=label?label.textContent.trim():'';
+    const seasoned=document.getElementById('sw-s-'+i)?.value||'dry';
+    const cubes=parseFloat(document.getElementById('sw-k-'+i)?.value)||0;
+    const cost=parseFloat(document.getElementById('sw-c-'+i)?.value)||0;
+    wtData.push({type,seasoned,cost,cubes,avail});
+  }
+  const data={
+    name:document.getElementById('sp-name').value.trim(),
+    phone:document.getElementById('sp-phone').value.trim(),
+    email:document.getElementById('sp-email').value.trim(),
+    deliveryFee:parseFloat(document.getElementById('sp-del').value)||35,
+    woodTypes:wtData
+  };
+  if(!data.name){toast('Enter a name');return;}
+  if(sid){const s=suppliers.find(x=>x.id===sid);if(s)Object.assign(s,data);}
+  else suppliers.push({id:'s'+Date.now(),...data});
+  persist(); closeModal(); renderSuppliers(); toast('Supplier saved!');
+}
+function delSupplier(id){
+  const s=suppliers.find(x=>x.id===id);
+  if(!s) return;
+  showModal('Delete Supplier',`
+    <p style="margin-bottom:16px">Delete <strong>${s.name}</strong>? This cannot be undone.</p>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="suppliers=suppliers.filter(x=>x.id!=='${id}');persist();closeModal();renderSuppliers();toast('Deleted')">Delete</button>
+    </div>`);
+}
+function shareSupplierPage(id){
+  const s=suppliers.find(x=>x.id===id);
+  if(!s) return;
+  const rows=s.woodTypes.filter(w=>w.avail).map(w=>`
+    <tr>
+      <td>${w.type}</td>
+      <td><input type="number" class="si" data-type="${w.type}" value="${w.cubes||0}" min="0" step="0.5" style="width:80px;padding:6px 8px;font-size:15px;border:1px solid #ddd;border-radius:4px;text-align:center"></td>
+      <td style="color:#666;font-size:13px">$${w.cost||0}/m³</td>
+    </tr>`).join('');
+
+  const unavail=s.woodTypes.filter(w=>!w.avail).map(w=>w.type).join(', ');
+
+  const html=`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fireside – ${s.name} Stock Sheet</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f7f7f7;color:#111;padding:24px 16px;max-width:480px;margin:0 auto}
+  h1{font-size:22px;font-weight:800;margin-bottom:2px;letter-spacing:-.3px}
+  .sub{font-size:13px;color:#888;margin-bottom:24px}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:16px}
+  th{background:#111;color:#fff;padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+  td{padding:10px 14px;border-bottom:1px solid #f0f0f0;font-size:14px;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  .unavail{font-size:13px;color:#999;margin-bottom:20px}
+  .copy-btn{width:100%;padding:13px;background:#111;color:#fff;border:none;border-radius:6px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px}
+  .copy-btn:active{background:#333}
+  .out{background:#fff;border:1px solid #ddd;border-radius:6px;padding:12px;font-size:13px;line-height:1.6;white-space:pre-wrap;font-family:monospace;color:#333;margin-top:12px;display:none}
+  .note{font-size:12px;color:#aaa;margin-top:10px;text-align:center}
+</style>
+</head>
+<body>
+<h1>${s.name}</h1>
+<div class="sub">Fireside stock sheet — update your available cubes below</div>
+<table>
+  <thead><tr><th>Wood Type</th><th>Cubes Available</th><th>Your Rate</th></tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+${unavail?`<div class="unavail">Not currently supplying: ${unavail}</div>`:''}
+<button class="copy-btn" onclick="copyUpdate()">Copy Stock Update</button>
+<div class="out" id="out"></div>
+<div class="note">Paste this message back to Delta at Fireside</div>
+<script>
+function copyUpdate(){
+  const lines=['Hi Delta, here is my current stock update:',''];
+  document.querySelectorAll('.si').forEach(inp=>{
+    lines.push(inp.dataset.type+': '+inp.value+'m³');
+  });
+  const txt=lines.join('\\n');
+  const out=document.getElementById('out');
+  out.textContent=txt;
+  out.style.display='block';
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(()=>alert('Copied to clipboard!'));}
+  else{const r=document.createRange();r.selectNode(out);window.getSelection().removeAllRanges();window.getSelection().addRange(r);document.execCommand('copy');alert('Copied!');}
+}
+<\/script>
+</body>
+</html>`;
+
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`Fireside-${s.name}-StockSheet.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+  toast(`Stock sheet downloaded for ${s.name}`);
+}
+
+// ─── HOME ─────────────────────────────────────────────────────
+function renderHome(){
+  // Stock on hand — aggregate across all suppliers
+  const stockMap={};
+  suppliers.forEach(s=>{
+    (s.woodTypes||[]).filter(w=>w.avail).forEach(w=>{
+      const base=w.type.replace(/ \((Dry|Green)\)$/i,'');
+      const seas=(w.seasoned||(w.type.includes('(Green)')?'green':w.type.includes('(Dry)')?'dry':'dry'));
+      if(!stockMap[base]) stockMap[base]={dry:0,green:0};
+      stockMap[base][seas==='green'?'green':'dry']+=(w.cubes||0);
+    });
+  });
+  const stockKeys=Object.keys(stockMap).sort();
+  document.getElementById('h-stock').innerHTML= stockKeys.length
+    ? stockKeys.map(type=>{
+        const {dry,green}=stockMap[type];
+        const total=dry+green;
+        return `<div class="card" style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <div style="font-weight:700;font-size:15px">${type}</div>
+            <div style="font-weight:700;font-size:15px">${total.toFixed(1)} m³</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${dry>0?`<span style="background:#b45309;color:#fff;border-radius:5px;padding:3px 10px;font-size:12px;font-weight:700">DRY ${dry.toFixed(1)} m³</span>`:''}
+            ${green>0?`<span style="background:#16a34a;color:#fff;border-radius:5px;padding:3px 10px;font-size:12px;font-weight:700">GREEN ${green.toFixed(1)} m³</span>`:''}
+            ${dry===0&&green===0?`<span style="color:var(--muted);font-size:12px">No stock</span>`:''}
+          </div>
+        </div>`;
+      }).join('')
+    : '<div class="empty" style="padding:16px">No supplier stock data yet</div>';
+
+  // This month's sales
+  const now=new Date();
+  const paid=orders.filter(o=>['paid','assigned','delivered'].includes(o.status));
+  const thisMonth=paid.filter(o=>{
+    const d=new Date(o.createdAt);
+    return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
+  });
+  const mrev=thisMonth.reduce((s,o)=>s+(o.cubes*o.pricePerCube)+o.deliveryFee,0);
+  const mcubes=thisMonth.reduce((s,o)=>s+o.cubes,0);
+  document.getElementById('h-mrev').textContent='$'+mrev.toFixed(0);
+  document.getElementById('h-morders').textContent=thisMonth.length;
+  document.getElementById('h-mcubes').textContent=mcubes.toFixed(1);
+
+  const mMap={};
+  thisMonth.forEach(o=>{
+    const key=(o.woodType||'Unknown')+'|'+(o.seasoned||'dry');
+    if(!mMap[key]) mMap[key]={type:o.woodType||'Unknown',seasoned:o.seasoned||'dry',cubes:0,rev:0,count:0};
+    mMap[key].cubes+=o.cubes;
+    mMap[key].rev+=(o.cubes*o.pricePerCube)+o.deliveryFee;
+    mMap[key].count++;
+  });
+  const mRows=Object.values(mMap).sort((a,b)=>b.cubes-a.cubes);
+  document.getElementById('h-month-breakdown').innerHTML= mRows.length
+    ? mRows.map(r=>`<div class="card" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-weight:600">${r.type}</span>
+          <span style="background:${r.seasoned==='green'?'#16a34a':'#b45309'};color:#fff;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:700">${r.seasoned.toUpperCase()}</span>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:700">$${r.rev.toFixed(0)}</div>
+          <div style="font-size:11px;color:var(--muted)">${r.cubes.toFixed(1)} m³ · ${r.count} order${r.count!==1?'s':''}</div>
+        </div>
+      </div>`).join('')
+    : '<div class="empty" style="padding:16px;margin-bottom:8px">No sales this month yet</div>';
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────────
+function renderDashboard(){
+  const paid=orders.filter(o=>['paid','assigned','delivered'].includes(o.status));
+  const rev=paid.reduce((s,o)=>s+(o.cubes*o.pricePerCube)+o.deliveryFee,0);
+  const cut=paid.reduce((s,o)=>s+(o.cubes*CUT_PER_CUBE)+CUT_DELIVERY,0);
+  const cubes=paid.reduce((s,o)=>s+o.cubes,0);
+  const pend=orders.filter(o=>o.status==='pending').length;
+  document.getElementById('d-rev').textContent='$'+rev.toFixed(0);
+  document.getElementById('d-cut').textContent='$'+cut.toFixed(0);
+  document.getElementById('d-orders').textContent=paid.length;
+  document.getElementById('d-cubes').textContent=cubes.toFixed(1);
+  document.getElementById('d-avg').textContent='$'+(paid.length?rev/paid.length:0).toFixed(0);
+  document.getElementById('d-pending').textContent=pend;
+
+  // ── Stock on hand ──────────────────────────────────────────
+  const stockMap={};
+  suppliers.forEach(s=>{
+    (s.woodTypes||[]).filter(w=>w.avail).forEach(w=>{
+      const base=w.type.replace(/ \((Dry|Green)\)$/i,'');
+      const seas=(w.seasoned||(w.type.includes('(Green)')?'green':w.type.includes('(Dry)')?'dry':'dry'));
+      if(!stockMap[base]) stockMap[base]={dry:0,green:0};
+      stockMap[base][seas==='green'?'green':'dry']+=(w.cubes||0);
+    });
+  });
+  const stockKeys=Object.keys(stockMap).sort();
+  document.getElementById('d-stock').innerHTML= stockKeys.length
+    ? stockKeys.map(type=>{
+        const {dry,green}=stockMap[type];
+        const total=dry+green;
+        return `<div class="card" style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <div style="font-weight:700;font-size:15px">${type}</div>
+            <div style="font-weight:700;font-size:15px">${total.toFixed(1)} m³</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            ${dry>0?`<span style="background:#b45309;color:#fff;border-radius:5px;padding:3px 10px;font-size:12px;font-weight:700">DRY ${dry.toFixed(1)} m³</span>`:''}
+            ${green>0?`<span style="background:#16a34a;color:#fff;border-radius:5px;padding:3px 10px;font-size:12px;font-weight:700">GREEN ${green.toFixed(1)} m³</span>`:''}
+            ${dry===0&&green===0?`<span style="color:var(--muted);font-size:12px">No stock</span>`:''}
+          </div>
+        </div>`;
+      }).join('')
+    : '<div class="empty" style="padding:16px">No supplier stock data yet</div>';
+
+  // ── This month's sales ─────────────────────────────────────
+  const now=new Date();
+  const thisMonth=paid.filter(o=>{
+    const d=new Date(o.createdAt);
+    return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
+  });
+  const mrev=thisMonth.reduce((s,o)=>s+(o.cubes*o.pricePerCube)+o.deliveryFee,0);
+  const mcubes=thisMonth.reduce((s,o)=>s+o.cubes,0);
+  document.getElementById('d-mrev').textContent='$'+mrev.toFixed(0);
+  document.getElementById('d-morders').textContent=thisMonth.length;
+  document.getElementById('d-mcubes').textContent=mcubes.toFixed(1);
+
+  // breakdown by wood type this month
+  const mMap={};
+  thisMonth.forEach(o=>{
+    const key=(o.woodType||'Unknown')+'|'+(o.seasoned||'dry');
+    if(!mMap[key]) mMap[key]={type:o.woodType||'Unknown',seasoned:o.seasoned||'dry',cubes:0,rev:0,count:0};
+    mMap[key].cubes+=o.cubes;
+    mMap[key].rev+=(o.cubes*o.pricePerCube)+o.deliveryFee;
+    mMap[key].count++;
+  });
+  const mRows=Object.values(mMap).sort((a,b)=>b.cubes-a.cubes);
+  document.getElementById('d-month-breakdown').innerHTML= mRows.length
+    ? mRows.map(r=>`<div class="card" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-weight:600">${r.type}</span>
+          <span style="background:${r.seasoned==='green'?'#16a34a':'#b45309'};color:#fff;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:700">${r.seasoned.toUpperCase()}</span>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:700">$${r.rev.toFixed(0)}</div>
+          <div style="font-size:11px;color:var(--muted)">${r.cubes.toFixed(1)} m³ · ${r.count} order${r.count!==1?'s':''}</div>
+        </div>
+      </div>`).join('')
+    : '<div class="empty" style="padding:16px;margin-bottom:8px">No sales this month yet</div>';
+
+  // ── Supplier payables ──────────────────────────────────────
+  const ds=document.getElementById('d-suppliers');
+  ds.innerHTML=suppliers.map(s=>{
+    const so=paid.filter(o=>o.supplierId===s.id);
+    const owe=so.reduce((sum,o)=>{
+      const wt=s.woodTypes.find(w=>w.type===o.woodType);
+      return sum+(o.cubes*(wt?wt.cost:0))+s.deliveryFee;
+    },0);
+    return `<div class="card" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-weight:600">${s.name}</div><div style="font-size:12px;color:var(--muted)">${so.length} orders</div></div>
+      <div style="color:var(--danger);font-weight:700">Owe: $${owe.toFixed(0)}</div>
+    </div>`;
+  }).join('') || '<div class="empty" style="padding:16px">No suppliers</div>';
+
+  renderChart(paid);
+}
+function renderChart(paid){
+  const svg=document.getElementById('trend-svg');
+  const W=svg.getBoundingClientRect().width||320;
+  const H=160;
+  const now=new Date();
+  const months=[];
+  for(let i=11;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    months.push({label:d.toLocaleString('default',{month:'short'}),y:d.getFullYear(),m:d.getMonth(),rev:0,cubes:0});
+  }
+  paid.forEach(o=>{
+    const d=new Date(o.createdAt);
+    const mo=months.find(m=>m.y===d.getFullYear()&&m.m===d.getMonth());
+    if(mo){mo.rev+=(o.cubes*o.pricePerCube)+o.deliveryFee;mo.cubes+=o.cubes;}
+  });
+  const maxR=Math.max(...months.map(m=>m.rev),1);
+  const pad=24; const chartW=W-pad*2;
+  const bW=chartW/12;
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  months.forEach((m,i)=>{
+    const x=pad+i*bW;
+    const bH=Math.max((m.rev/maxR)*(H-30),m.rev>0?4:0);
+    const y=H-20-bH;
+    const bx=x+bW*0.15; const bww=bW*0.7;
+    s+=`<rect x="${bx.toFixed(1)}" y="${y.toFixed(1)}" width="${bww.toFixed(1)}" height="${bH.toFixed(1)}" rx="3" fill="${m.rev>0?'#e8640c':'#3d2a1e'}"/>`;
+    s+=`<text x="${(x+bW/2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="9" fill="#8a6a50">${m.label}</text>`;
+    if(m.rev>0) s+=`<text x="${(x+bW/2).toFixed(1)}" y="${(y-4).toFixed(1)}" text-anchor="middle" font-size="8" fill="#e8640c">$${(m.rev/1000).toFixed(1)}k</text>`;
+  });
+  s+='</svg>';
+  svg.outerHTML=s;
+}
+
+// ─── SETTINGS ────────────────────────────────────────────────
+function renderSettings(){
+  // Wood prices
+  document.getElementById('wood-prices-list').innerHTML=
+    Object.entries(woodPrices).map(([t,p])=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <label style="text-transform:none;letter-spacing:0;font-size:14px;margin:0">${t}</label>
+        <input type="number" value="${p}" style="width:90px" onchange="woodPrices['${t}']=parseFloat(this.value)||0;persist()">
+      </div>`).join('');
+  // Areas
+  document.getElementById('areas-list').innerHTML=
+    areas.map((a,i)=>`
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <input value="${a.name}" style="flex:1" onchange="areas[${i}].name=this.value;persist();refreshAreaDropdown()">
+        <input type="number" value="${a.fee}" style="width:72px" onchange="areas[${i}].fee=parseFloat(this.value)||0;persist();refreshAreaDropdown()">
+        <button class="btn btn-danger btn-sm" onclick="removeArea(${i})">×</button>
+      </div>`).join('');
+  // Firebase
+  const fb=load('fbConfig',{});
+  if(fb.apiKey) document.getElementById('fb-key').value=fb.apiKey;
+  if(fb.projectId) document.getElementById('fb-proj').value=fb.projectId;
+  if(fb.appId) document.getElementById('fb-app').value=fb.appId;
+  // Email status
+  loadEmailStatus();
+}
+const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGEU1e_vVYzUdDjsL2kPdns62RwZvofUF7yYUpXhz_BtJ_12zXdByNhErHHovcI-XF/exec';
+
+function loadEmailStatus(){
+  fetch(EMAIL_SCRIPT_URL+'?action=status')
+    .then(r=>r.json()).then(d=>setEmailUI(d.enabled))
+    .catch(()=>setEmailUI(null));
+}
+function setEmailUI(enabled){
+  const btn=document.getElementById('email-toggle-btn');
+  const txt=document.getElementById('email-status-text');
+  if(enabled===null){btn.textContent='Error';txt.textContent='Could not connect to email script';return;}
+  if(enabled){
+    btn.textContent='Turn Off';btn.className='btn btn-danger';
+    txt.textContent='ON — emails send automatically each week';
+  } else {
+    btn.textContent='Turn On';btn.className='btn btn-primary';
+    txt.textContent='OFF — no emails will be sent';
+  }
+}
+function toggleWeeklyEmail(){
+  const btn=document.getElementById('email-toggle-btn');
+  const isOn=btn.textContent==='Turn Off';
+  btn.textContent='…';
+  fetch(EMAIL_SCRIPT_URL+'?action='+(isOn?'disable':'enable'))
+    .then(r=>r.json()).then(d=>setEmailUI(d.enabled))
+    .catch(()=>toast('Could not connect to email script'));
+}
+function sendEmailsNow(){
+  toast('Sending…');
+  fetch(EMAIL_SCRIPT_URL+'?action=send')
+    .then(r=>r.json()).then(d=>{if(d.success)toast('Stock requests sent!');else toast('Send failed');})
+    .catch(()=>toast('Could not connect to email script'));
+}
+function formatUpdated(iso){
+  const d=new Date(iso), now=new Date();
+  const days=Math.floor((now-d)/86400000);
+  if(days===0) return 'today at '+d.toLocaleTimeString('en-NZ',{hour:'2-digit',minute:'2-digit'});
+  if(days===1) return 'yesterday';
+  if(days<7) return days+' days ago';
+  return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'});
+}
+function sendStockRequest(id){
+  const s=suppliers.find(x=>x.id===id);
+  if(!s){toast('Supplier not found');return;}
+  if(!s.email){toast('No email for '+s.name);return;}
+  const url=EMAIL_SCRIPT_URL+'?action=sendone&name='+encodeURIComponent(s.name)+'&email='+encodeURIComponent(s.email)+'&id='+encodeURIComponent(s.id);
+  toast('Sending to '+s.name+'…');
+  fetch(url).then(r=>r.json()).then(d=>{
+    if(d.success) toast('Request sent to '+s.name);
+    else toast('Failed: '+(d.message||'unknown error'));
+  }).catch(()=>toast('Could not reach email script'));
+}
+function removeArea(i){areas.splice(i,1);persist();renderSettings();refreshAreaDropdown();}
+function addAreaPrompt(){
+  showModal('Add Delivery Area',`
+    <div class="form-group"><label>Area Name</label><input id="na-name" placeholder="e.g. Timaru"></div>
+    <div class="form-group"><label>Fee ($)</label><input type="number" id="na-fee" value="50"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="doAddArea()">Add</button>
+    </div>
+  `);
+}
+function doAddArea(){
+  const n=document.getElementById('na-name').value.trim();
+  if(!n){toast('Enter a name');return;}
+  areas.push({name:n,fee:parseFloat(document.getElementById('na-fee').value)||35});
+  persist();closeModal();renderSettings();refreshAreaDropdown();toast('Area added!');
+}
+function refreshAreaDropdown(){
+  const sel=document.getElementById('q-area');
+  if(!sel) return;
+  const cur=sel.value;
+  sel.innerHTML=areas.map(a=>`<option value="${a.name}">${a.name} ($${a.fee})</option>`).join('');
+  if(areas.find(a=>a.name===cur)) sel.value=cur;
+}
+function saveFbConfig(){
+  const cfg={
+    apiKey:document.getElementById('fb-key').value.trim(),
+    projectId:document.getElementById('fb-proj').value.trim(),
+    appId:document.getElementById('fb-app').value.trim(),
+    authDomain:document.getElementById('fb-proj').value.trim()+'.firebaseapp.com',
+    storageBucket:document.getElementById('fb-proj').value.trim()+'.appspot.com',
+    messagingSenderId:'',
+  };
+  localStorage.setItem('fbConfig',JSON.stringify(cfg));
+  toast('Saved — connecting…');
+  initFirebase(cfg);
+}
+
+let _db=null;
+async function initFirebase(cfg){
+  try{
+    const {initializeApp,getApps}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const {getFirestore,doc,setDoc,onSnapshot}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const app=getApps().length?getApps()[0]:initializeApp(cfg);
+    _db=getFirestore(app);
+    // Push current local data up first
+    await setDoc(doc(_db,'fireside','data'),{orders,suppliers,woodPrices,areas},{ merge:true });
+    // Then listen for changes (syncs across devices in real time)
+    onSnapshot(doc(_db,'fireside','data'),snap=>{
+      if(!snap.exists()) return;
+      const d=snap.data();
+      orders=d.orders||orders;
+      suppliers=d.suppliers||suppliers;
+      woodPrices=d.woodPrices||woodPrices;
+      areas=d.areas||areas;
+      renderHome(); renderOrders(); renderCustomers(); renderSuppliers(); renderDashboard();
+      refreshAreaDropdown(); refreshSupplierDropdown();
+    });
+    document.getElementById('sync-status').textContent='● Firebase';
+    document.getElementById('sync-status').style.color='#22c55e';
+    toast('Connected to Firebase ✓');
+    const proj=cfg.projectId;
+    const linksBox=document.getElementById('fb-links');
+    if(linksBox){
+      const base=`https://${proj}.web.app/supplier.html`;
+      linksBox.style.display='block';
+      linksBox.innerHTML=`<div class="section-title" style="margin-bottom:8px">Supplier Stock Links</div>`+
+        suppliers.map(s=>`<div style="margin-bottom:10px;padding:10px;background:var(--surface);border-radius:6px;border:1px solid var(--border)">
+          <div style="font-weight:600;margin-bottom:4px">${s.name}</div>
+          <div style="font-size:12px;color:var(--muted);word-break:break-all">${base}?id=${s.id}</div>
+        </div>`).join('');
+    }
+  }catch(e){
+    console.error(e);
+    toast('Firebase error — check config');
+  }
+}
+async function persistFirebase(){
+  if(!_db) return;
+  const {doc,setDoc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  setDoc(doc(_db,'fireside','data'),{orders,suppliers,woodPrices,areas});
+}
+
+// ─── MODAL ───────────────────────────────────────────────────
+function showModal(title,body){
+  document.getElementById('modal-body').innerHTML=`<div class="modal-title">${title}</div>${body}`;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); }
+function maybeCloseModal(e){ if(e.target===document.getElementById('modal-overlay')) closeModal(); }
+
+// ─── TOAST ───────────────────────────────────────────────────
+function toast(msg){
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;bottom:76px;left:50%;transform:translateX(-50%);background:#e8640c;color:#fff;padding:9px 18px;border-radius:20px;z-index:9999;font-size:13px;font-weight:600;white-space:nowrap;pointer-events:none';
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),2500);
+}
+
+// ─── WINZ ────────────────────────────────────────────────────
+function getNextWinzNo(){ return parseInt(localStorage.getItem('winz_next_no')||'1402'); }
+function saveNextWinzNo(n){ localStorage.setItem('winz_next_no', n); }
+
+function toggleWinz(){
+  isWinzMode = !isWinzMode;
+  const btn = document.getElementById('winz-toggle-btn');
+  const fields = document.getElementById('winz-fields');
+  const stdPrev = document.getElementById('standard-preview-section');
+  const winzPrev = document.getElementById('winz-preview-section');
+  if(isWinzMode){
+    btn.textContent='WINZ Quote: ON';
+    btn.style.background='rgba(96,165,250,0.2)';
+    btn.style.color='var(--blue)';
+    btn.style.borderColor='var(--blue)';
+    fields.style.display='block';
+    stdPrev.style.display='none';
+    winzPrev.style.display='block';
+    // set default date and quote number
+    if(!document.getElementById('w-date').value){
+      const t=new Date(), pad=n=>String(n).padStart(2,'0');
+      document.getElementById('w-date').value=t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate());
+    }
+    if(!document.getElementById('w-quoteNo').value){
+      document.getElementById('w-quoteNo').value = getNextWinzNo();
+    }
+    renderWinzPreview();
+  } else {
+    btn.textContent='WINZ Quote: OFF';
+    btn.style.background='';btn.style.color='';btn.style.borderColor='';
+    fields.style.display='none';
+    stdPrev.style.display='block';
+    winzPrev.style.display='none';
+    renderPreview();
+  }
+}
+
+function renderWinzPreview(){
+  const name    = document.getElementById('q-name').value.trim()||'—';
+  const addr    = document.getElementById('q-address').value.trim()||'—';
+  const phone   = document.getElementById('q-phone').value.trim()||'—';
+  const wood    = document.getElementById('q-wood').value;
+  const cubes   = parseFloat(document.getElementById('q-cubes').value)||0;
+  const price   = parseFloat(document.getElementById('q-price').value)||0;
+  const del     = parseFloat(document.getElementById('q-delivery').value)||0;
+  const quoteNo = document.getElementById('w-quoteNo').value||'—';
+  const dateRaw = document.getElementById('w-date').value;
+  const delivNote = document.getElementById('w-delivNote')?document.getElementById('w-delivNote').value:'Based on suitable driveway access.';
+  const dateStr = dateRaw ? new Date(dateRaw+'T12:00:00').toLocaleDateString('en-NZ',{day:'numeric',month:'long',year:'numeric'}) : '—';
+  const woodTotal = cubes*price;
+  const total = woodTotal+del;
+  const delStr = del>0 ? `$${del.toFixed(0)} – ${delivNote}` : `Free – ${delivNote}`;
+
+  const preview =
+`FIRESIDE — Quote No: ${quoteNo}
+Date: ${dateStr}
+
+To: ${name}
+    ${addr}
+Phone: ${phone}
+
+Specifications: ${cubes}m³ ${wood}
+
+Wood Price:  $${woodTotal.toFixed(0)}
+Delivery:    ${delStr}
+Total:       $${total.toFixed(0)}
+
+• Trading name: Fireside
+• Supplier ID: ${WINZ_SUPPLIER_ID}
+
+Yours Sincerely,
+From the Fireside team.`;
+
+  document.getElementById('winz-preview').textContent = preview;
+}
+
+function downloadWinzPDF(){
+  const name     = document.getElementById('q-name').value.trim()||'Customer';
+  const addr     = document.getElementById('q-address').value.trim()||'';
+  const phone    = document.getElementById('q-phone').value.trim()||'';
+  const wood     = document.getElementById('q-wood').value;
+  const cubes    = parseFloat(document.getElementById('q-cubes').value)||0;
+  const price    = parseFloat(document.getElementById('q-price').value)||0;
+  const del      = parseFloat(document.getElementById('q-delivery').value)||0;
+  const quoteNo  = document.getElementById('w-quoteNo').value||getNextWinzNo();
+  const dateRaw  = document.getElementById('w-date').value;
+  const delivNote= document.getElementById('w-delivNote').value||'Based on suitable driveway access.';
+  const dateStr  = dateRaw ? new Date(dateRaw+'T12:00:00').toLocaleDateString('en-NZ',{day:'numeric',month:'long',year:'numeric'}) : '';
+  const woodTotal= cubes*price;
+  const total    = woodTotal+del;
+  const delStr   = del>0 ? `$${del.toFixed(0)} – ${delivNote}` : `Free – ${delivNote}`;
+  const spec     = `${wood} ${cubes}m`;
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WINZ Quote ${quoteNo} – ${name}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;font-size:10.5px;color:#000;background:#fff;padding:18mm 20mm 20mm 20mm;width:210mm}
+@media print{@page{size:A4;margin:0}body{padding:18mm 20mm 20mm 20mm}.print-btn{display:none!important}}
+.print-btn{position:fixed;top:12px;right:12px;background:#1a6fc4;color:#fff;border:none;padding:9px 18px;border-radius:4px;font-size:13px;cursor:pointer;font-family:Arial,sans-serif;z-index:999}
+.print-btn:hover{background:#155ea0}
+.ph{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px}
+.plogo{height:64px;width:auto}
+.pcontact{text-align:right;font-size:10px;line-height:1.85}
+hr{border:none;border-top:1px solid #aaa;margin:10px 0 16px}
+.pmeta{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}
+.precipient{font-size:10px;line-height:1.85}
+.pqmeta{text-align:right;font-size:10px;line-height:1.85}
+.pqno{font-style:italic;font-weight:700;font-size:12px;display:block}
+.pspecs{font-weight:700;font-size:11.5px;margin-bottom:22px}
+.pfield{display:flex;align-items:flex-start;margin-bottom:14px;font-size:10.5px}
+.pflabel{font-weight:700;font-style:italic;width:110px;flex-shrink:0}
+.ptotal{margin-top:6px;margin-bottom:0}
+.pbullets{margin:22px 0 0 18px;font-size:10px;line-height:2}
+.psign{font-size:10.5px;margin-top:28px;line-height:1}
+.psign p{margin-bottom:14px}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">&#128438; Print / Save as PDF</button>
+<div class="ph">
+  <img class="plogo" src="data:image/jpeg;base64,${LOGO_B64}" alt="Fireside"/>
+  <div class="pcontact">${WINZ_PHONE}<br>${WINZ_EMAIL}<br>Oamaru &ndash; Otago</div>
+</div>
+<hr/>
+<div class="pmeta">
+  <div class="precipient">${name}<br>${addr}</div>
+  <div class="pqmeta">${dateStr}<br><span class="pqno">Quote No: ${quoteNo}</span><br>${phone}</div>
+</div>
+<div class="pspecs">Specifications: ${spec}</div>
+<div class="pfield"><span class="pflabel">Wood Price:</span><span>$${woodTotal.toFixed(0)}</span></div>
+<div class="pfield"><span class="pflabel">Delivery:</span><span>${delStr}</span></div>
+<div class="pfield ptotal"><span class="pflabel">Total:</span><span>$${total.toFixed(0)}</span></div>
+<ul class="pbullets">
+  <li>Trading name: Fireside</li>
+  <li>Supplier ID number: ${WINZ_SUPPLIER_ID}</li>
+</ul>
+<div class="psign"><p>Yours Sincerely,</p><p>From the Fireside team.</p></div>
+</body>
+</html>`;
+
+  const blob = new Blob([html], {type:'text/html'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `WINZ-Quote-${quoteNo}-${name.replace(/\s+/g,'-')}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 5000);
+
+  saveNextWinzNo(parseInt(quoteNo)+1);
+  document.getElementById('w-quoteNo').value = parseInt(quoteNo)+1;
+  toast('Quote downloaded — open the file, then Print → Save as PDF');
+}
+
+// ─── SEED HISTORICAL DATA ────────────────────────────────────
+function seedHistoricalOrders(){
+  if(localStorage.getItem('seeded_v1')) return;
+  const hist = [
+    {id:'h1',  customerName:'Cass Blampied',  phone:'', address:'21 Bedford Street, Oamaru North', woodType:'Mixed',   cubes:3, pricePerCube:150, deliveryArea:'Oamaru', deliveryFee:40, notes:'', status:'delivered', supplierId:null, createdAt:'2026-06-30T09:00:00Z', paidAt:'2026-06-30T09:00:00Z', assignedAt:'2026-06-30T09:00:00Z', deliveredAt:'2026-06-30T09:00:00Z'},
+    {id:'h2',  customerName:'',               phone:'', address:'91 Taward Street',                 woodType:'Pine',    cubes:3, pricePerCube:135, deliveryArea:'Oamaru', deliveryFee:35, notes:'', status:'delivered', supplierId:null, createdAt:'2026-06-23T09:00:00Z', paidAt:'2026-06-23T09:00:00Z', assignedAt:'2026-06-23T09:00:00Z', deliveredAt:'2026-06-23T09:00:00Z'},
+    {id:'h3',  customerName:'',               phone:'', address:'2a Arun St',                       woodType:'Hot Mix', cubes:3, pricePerCube:160, deliveryArea:'Oamaru', deliveryFee:35, notes:'', status:'delivered', supplierId:null, createdAt:'2026-06-18T09:00:00Z', paidAt:'2026-06-18T09:00:00Z', assignedAt:'2026-06-18T09:00:00Z', deliveredAt:'2026-06-18T09:00:00Z'},
+    {id:'h4',  customerName:'Almanzo',         phone:'', address:'127 Reservoir Road, Oamaru North', woodType:'Hot Mix', cubes:3, pricePerCube:160, deliveryArea:'Oamaru', deliveryFee:35, notes:'', status:'delivered', supplierId:null, createdAt:'2026-06-18T08:00:00Z', paidAt:'2026-06-18T08:00:00Z', assignedAt:'2026-06-18T08:00:00Z', deliveredAt:'2026-06-18T08:00:00Z'},
+    {id:'h5',  customerName:'',               phone:'', address:'23 Stour St',                      woodType:'Pine',    cubes:3, pricePerCube:135, deliveryArea:'Oamaru', deliveryFee:35, notes:'', status:'delivered', supplierId:null, createdAt:'2026-06-10T09:00:00Z', paidAt:'2026-06-10T09:00:00Z', assignedAt:'2026-06-10T09:00:00Z', deliveredAt:'2026-06-10T09:00:00Z'},
+    {id:'h6',  customerName:'',               phone:'', address:'8 Cambridge Place',                woodType:'Pine',    cubes:3, pricePerCube:135, deliveryArea:'Oamaru', deliveryFee:35, notes:'', status:'delivered', supplierId:null, createdAt:'2026-06-10T08:00:00Z', paidAt:'2026-06-10T08:00:00Z', assignedAt:'2026-06-10T08:00:00Z', deliveredAt:'2026-06-10T08:00:00Z'},
+    {id:'h7',  customerName:'Mike',            phone:'', address:'24 Gees Road, Kakanui',            woodType:'Pine',    cubes:3, pricePerCube:135, deliveryArea:'Kakanui', deliveryFee:45, notes:'', status:'delivered', supplierId:null, createdAt:'2026-06-04T09:00:00Z', paidAt:'2026-06-04T09:00:00Z', assignedAt:'2026-06-04T09:00:00Z', deliveredAt:'2026-06-04T09:00:00Z'},
+    {id:'h8',  customerName:'Viv Waite',       phone:'', address:'60 Awamoa Road, Holmes Hill',      woodType:'Pine',    cubes:2, pricePerCube:135, deliveryArea:'Oamaru', deliveryFee:35, notes:'', status:'delivered', supplierId:null, createdAt:'2026-06-04T08:00:00Z', paidAt:'2026-06-04T08:00:00Z', assignedAt:'2026-06-04T08:00:00Z', deliveredAt:'2026-06-04T08:00:00Z'},
+    {id:'h9',  customerName:'Rebecca Corder',  phone:'', address:'18 Rother Street',                woodType:'Pine',    cubes:3, pricePerCube:135, deliveryArea:'Oamaru', deliveryFee:35, notes:'', status:'delivered', supplierId:null, createdAt:'2026-05-30T09:00:00Z', paidAt:'2026-05-30T09:00:00Z', assignedAt:'2026-05-30T09:00:00Z', deliveredAt:'2026-05-30T09:00:00Z'},
+    {id:'h10', customerName:'Amanda Jakes',    phone:'', address:'73 London Street, Hampden',        woodType:'Pine',    cubes:3, pricePerCube:135, deliveryArea:'Hampden', deliveryFee:85, notes:'', status:'delivered', supplierId:null, createdAt:'2026-05-27T09:00:00Z', paidAt:'2026-05-27T09:00:00Z', assignedAt:'2026-05-27T09:00:00Z', deliveredAt:'2026-05-27T09:00:00Z'},
+    {id:'h11', customerName:'Tracey Gray',     phone:'', address:'2a Foyle Street',                 woodType:'Pine',    cubes:3, pricePerCube:135, deliveryArea:'Oamaru', deliveryFee:35, notes:'', status:'delivered', supplierId:null, createdAt:'2026-05-27T08:00:00Z', paidAt:'2026-05-27T08:00:00Z', assignedAt:'2026-05-27T08:00:00Z', deliveredAt:'2026-05-27T08:00:00Z'},
+    {id:'h12', customerName:'Almanzo',         phone:'', address:'127 Reservoir Road, Oamaru North', woodType:'Pine',   cubes:3, pricePerCube:135, deliveryArea:'Oamaru', deliveryFee:35, notes:'', status:'delivered', supplierId:null, createdAt:'2026-05-26T09:00:00Z', paidAt:'2026-05-26T09:00:00Z', assignedAt:'2026-05-26T09:00:00Z', deliveredAt:'2026-05-26T09:00:00Z'},
+    {id:'h13', customerName:'Sue-Ellen Holmes',phone:'', address:'6 Spruce St, Oamaru',             woodType:'Pine',    cubes:3, pricePerCube:135, deliveryArea:'Oamaru', deliveryFee:35, notes:'', status:'delivered', supplierId:null, createdAt:'2026-05-25T09:00:00Z', paidAt:'2026-05-25T09:00:00Z', assignedAt:'2026-05-25T09:00:00Z', deliveredAt:'2026-05-25T09:00:00Z'},
+    {id:'h14', customerName:'Rose Tatana',     phone:'', address:'91 Taward Street',                woodType:'Pine',    cubes:3, pricePerCube:135, deliveryArea:'Oamaru', deliveryFee:35, notes:'', status:'delivered', supplierId:null, createdAt:'2026-05-22T09:00:00Z', paidAt:'2026-05-22T09:00:00Z', assignedAt:'2026-05-22T09:00:00Z', deliveredAt:'2026-05-22T09:00:00Z'},
+    {id:'h15', customerName:'',               phone:'', address:'',                                 woodType:'Pine',    cubes:4, pricePerCube:135, deliveryArea:'Oamaru', deliveryFee:35, notes:'', status:'delivered', supplierId:null, createdAt:'2026-05-21T12:00:00Z', paidAt:'2026-05-21T12:00:00Z', assignedAt:'2026-05-21T12:00:00Z', deliveredAt:'2026-05-21T12:00:00Z'},
+    {id:'h16', customerName:'',               phone:'', address:'',                                 woodType:'Pine',    cubes:3, pricePerCube:135, deliveryArea:'Oamaru', deliveryFee:65, notes:'', status:'delivered', supplierId:null, createdAt:'2026-05-21T11:00:00Z', paidAt:'2026-05-21T11:00:00Z', assignedAt:'2026-05-21T11:00:00Z', deliveredAt:'2026-05-21T11:00:00Z'},
+    {id:'h17', customerName:'',               phone:'', address:'',                                 woodType:'Pine',    cubes:3, pricePerCube:135, deliveryArea:'Oamaru', deliveryFee:35, notes:'', status:'delivered', supplierId:null, createdAt:'2026-05-21T10:00:00Z', paidAt:'2026-05-21T10:00:00Z', assignedAt:'2026-05-21T10:00:00Z', deliveredAt:'2026-05-21T10:00:00Z'},
+    {id:'h18', customerName:'',               phone:'', address:'',                                 woodType:'Pine',    cubes:4, pricePerCube:135, deliveryArea:'Oamaru', deliveryFee:45, notes:'', status:'delivered', supplierId:null, createdAt:'2026-05-21T09:00:00Z', paidAt:'2026-05-21T09:00:00Z', assignedAt:'2026-05-21T09:00:00Z', deliveredAt:'2026-05-21T09:00:00Z'},
+  ];
+  // add Kakanui and Hampden to areas if not present
+  if(!areas.find(a=>a.name==='Kakanui')) areas.push({name:'Kakanui',fee:45});
+  if(!areas.find(a=>a.name==='Hampden')) areas.push({name:'Hampden',fee:85});
+  orders = [...hist, ...orders];
+  persist();
+  localStorage.setItem('seeded_v1','1');
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+seedHistoricalOrders();
+refreshAreaDropdown();
+refreshSupplierDropdown();
+onWoodChange();
+// Auto-connect Firebase if config saved
+(function(){
+  try{
+    const cfg=JSON.parse(localStorage.getItem('fbConfig')||'{}');
+    if(cfg.apiKey && cfg.projectId) initFirebase(cfg);
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
