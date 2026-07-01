@@ -1246,6 +1246,7 @@ function renderSettings(){
   loadEmailStatus();
 }
 const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGEU1e_vVYzUdDjsL2kPdns62RwZvofUF7yYUpXhz_BtJ_12zXdByNhErHHovcI-XF/exec';
+const SUPPLIER_BASE_URL = 'https://fireside13a-tech.github.io/Fireside/supplier.html';
 
 function loadEmailStatus(){
   fetch(EMAIL_SCRIPT_URL+'?action=status')
@@ -1361,7 +1362,7 @@ async function initFirebase(cfg){
     const proj=cfg.projectId;
     const linksBox=document.getElementById('fb-links');
     if(linksBox){
-      const base=`https://${proj}.web.app/supplier.html`;
+      const base=SUPPLIER_BASE_URL;
       linksBox.style.display='block';
       linksBox.innerHTML=`<div class="section-title" style="margin-bottom:8px">Supplier Stock Links</div>`+
         suppliers.map(s=>`<div style="margin-bottom:10px;padding:10px;background:var(--surface);border-radius:6px;border:1px solid var(--border)">
