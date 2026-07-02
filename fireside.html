@@ -549,25 +549,26 @@ function parseMessage(){
 
   let name = '';
 
-  // Try: "hello/hi/hey ... it's/this is NAME ... here/from"
+  // Try explicit introductions first
   let m = txt.match(/(?:hello|hi|hey|kia ora).*?(?:it'?s|i'?m|this is|i am|my name is)\s+(.+?)(?:\s+(?:here|from|calling|ringing)|[,.\n!?]|$)/i);
-  // Try: "it's/i'm/my name is NAME [here/from/,]"
   if(!m) m = txt.match(/(?:it'?s|i'?m|this is|i am|my name is)\s+(.+?)(?:\s+(?:here|from|calling)|[,.\n!?]|$)/i);
-  // Try: "NAME here [...]"
   if(!m) m = txt.match(/^(.+?)\s+here\b/im);
-  if(!m) m = txt.match(/\b(.+?)\s+here\b/i);
-  // Try: "NAME calling" / "NAME speaking"
   if(!m) m = txt.match(/\b(.+?)\s+(?:calling|speaking|ringing)\b/i);
-  // Try: "Firstname Lastname" at start (any case)
-  if(!m) m = txt.match(/^([A-Za-z]+ [A-Za-z]+)[,\n\s]/m);
-  // Fallback: first word(s) on first line that aren't stop words
-  if(!m) {
-    const firstLine = txt.split('\n')[0].trim();
-    if(firstLine && !/\d/.test(firstLine) && firstLine.split(' ').length <= 4)
-      name = firstLine.replace(/[^A-Za-z\s]/g,'').trim().replace(/\b\w/g,c=>c.toUpperCase());
-  }
 
-  if(m && !name) name = extractName(m[1]);
+  if(m) {
+    name = extractName(m[1]);
+  } else {
+    // Fallback: scan each line for one that looks like a name (letters only, 1-4 words, no digits)
+    const lines = txt.split('\n').map(l=>l.trim()).filter(l=>l);
+    for(const line of lines) {
+      const clean = line.replace(/[^A-Za-z\s]/g,'').trim();
+      const words = clean.split(/\s+/).filter(w=>w);
+      if(words.length >= 1 && words.length <= 4 && !/\d/.test(line) && !STOP.test(words[0])) {
+        name = words.map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' ');
+        break;
+      }
+    }
+  }
 
   // Cubes
   const cm = txt.match(/(\d+(?:\.\d+)?)\s*(?:m³|m3|cubic|cubes?|m\b)/i);
@@ -1576,132 +1577,90 @@ function downloadWinzPDF(){
   const delStr   = del>0 ? `$${del.toFixed(0)} – ${delivNote}` : `Free – ${delivNote}`;
   const spec     = `${wood} ${cubes}m`;
 
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>WINZ Quote ${quoteNo} – ${name}</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Arial,sans-serif;font-size:10.5px;color:#000;background:#fff;padding:18mm 20mm 20mm 20mm;width:210mm}
-@media print{@page{size:A4;margin:0}body{padding:18mm 20mm 20mm 20mm}.print-btn{display:none!important}}
-.print-btn{position:fixed;top:12px;right:12px;background:#1a6fc4;color:#fff;border:none;padding:9px 18px;border-radius:4px;font-size:13px;cursor:pointer;font-family:Arial,sans-serif;z-index:999}
-.print-btn:hover{background:#155ea0}
-.ph{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px}
-.plogo{height:64px;width:auto}
-.pcontact{text-align:right;font-size:10px;line-height:1.85}
-hr{border:none;border-top:1px solid #aaa;margin:10px 0 16px}
-.pmeta{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}
-.precipient{font-size:10px;line-height:1.85}
-.pqmeta{text-align:right;font-size:10px;line-height:1.85}
-.pqno{font-style:italic;font-weight:700;font-size:12px;display:block}
-.pspecs{font-weight:700;font-size:11.5px;margin-bottom:22px}
-.pfield{display:flex;align-items:flex-start;margin-bottom:14px;font-size:10.5px}
-.pflabel{font-weight:700;font-style:italic;width:110px;flex-shrink:0}
-.ptotal{margin-top:6px;margin-bottom:0}
-.pbullets{margin:22px 0 0 18px;font-size:10px;line-height:2}
-.psign{font-size:10.5px;margin-top:28px;line-height:1}
-.psign p{margin-bottom:14px}
-</style>
-</head>
-<body>
-<button class="print-btn" onclick="window.print()">&#128438; Print / Save as PDF</button>
-<div class="ph">
-  <img class="plogo" src="data:image/jpeg;base64,${LOGO_B64}" alt="Fireside"/>
-  <div class="pcontact">${WINZ_PHONE}<br>${WINZ_EMAIL}<br>Oamaru &ndash; Otago</div>
-</div>
-<hr/>
-<div class="pmeta">
-  <div class="precipient">${name}<br>${addr}</div>
-  <div class="pqmeta">${dateStr}<br><span class="pqno">Quote No: ${quoteNo}</span><br>${phone}</div>
-</div>
-<div class="pspecs">Specifications: ${spec}</div>
-<div class="pfield"><span class="pflabel">Wood Price:</span><span>$${woodTotal.toFixed(0)}</span></div>
-<div class="pfield"><span class="pflabel">Delivery:</span><span>${delStr}</span></div>
-<div class="pfield ptotal"><span class="pflabel">Total:</span><span>$${total.toFixed(0)}</span></div>
-<ul class="pbullets">
-  <li>Trading name: Fireside</li>
-  <li>Supplier ID number: ${WINZ_SUPPLIER_ID}</li>
-</ul>
-<div class="psign"><p>Yours Sincerely,</p><p>From the Fireside team.</p></div>
-</body>
-</html>`;
-
-  // Generate real PDF using jsPDF
+  // ── Build PDF ──────────────────────────────────────────────
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const L = 20, R = 190, W = 170;
-  let y = 18;
+  const L = 20, R = 190;
+  let y = 20;
 
-  // Logo text (no image embed needed — use styled text)
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(22);
-  doc.setTextColor(0,0,0);
+  // FIRESIDE heading — black
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(24);
+  doc.setTextColor(0, 0, 0);
   doc.text('FIRESIDE', L, y);
 
-  // Contact block top-right
-  doc.setFont('helvetica','normal');
+  // Contact info top-right
+  doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
-  doc.setTextColor(60,60,60);
-  doc.text([WINZ_PHONE, WINZ_EMAIL, 'Oamaru – Otago'], R, y - 4, {align:'right'});
+  doc.setTextColor(80, 80, 80);
+  const contactLines = [WINZ_PHONE, WINZ_EMAIL, 'Oamaru – Otago'];
+  contactLines.forEach((line, i) => {
+    doc.text(line, R, y - 6 + (i * 4.5), { align: 'right' });
+  });
 
-  y += 5;
-  doc.setDrawColor(180,180,180);
+  // Divider
+  y += 6;
+  doc.setDrawColor(180, 180, 180);
   doc.line(L, y, R, y);
-  y += 8;
+  y += 9;
 
-  // Recipient + Quote meta
-  doc.setFont('helvetica','normal');
+  // Customer name, address, phone
+  doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
-  doc.setTextColor(0,0,0);
-  doc.text(name, L, y);
-  y += 5; doc.text(addr || 'Address: ___________________________', L, y);
-  if(phone) { y += 5; doc.text(phone, L, y); }
+  doc.setTextColor(0, 0, 0);
+  doc.text(name, L, y); y += 5;
+  doc.text(addr || '___________________________', L, y); y += 5;
+  if (phone) { doc.text(phone, L, y); }
 
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(11);
-  doc.setTextColor(40,40,40);
-  doc.text(`Quote No: ${quoteNo}`, R, y - (addr ? 10 : 5), {align:'right'});
-  doc.setFont('helvetica','normal');
+  // Quote number + date top-right
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Quote No: ${quoteNo}`, R, y - 5, { align: 'right' });
+  doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
-  if(dateStr) doc.text(dateStr, R, y - (addr ? 15 : 10), {align:'right'});
+  doc.setTextColor(80, 80, 80);
+  if (dateStr) doc.text(dateStr, R, y - 10, { align: 'right' });
 
   y += 12;
-  doc.setFont('helvetica','bold');
+
+  // Specifications
+  doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
-  doc.setTextColor(0,0,0);
+  doc.setTextColor(0, 0, 0);
   doc.text(`Specifications: ${spec}`, L, y);
-
   y += 10;
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(10);
 
-  const rows = [
+  // Pricing rows
+  const pricingRows = [
     ['Wood Price:', `$${woodTotal.toFixed(0)}`],
     ['Delivery:', delStr],
-    ['Total:', `$${total.toFixed(0)}`],
   ];
-  rows.forEach(([label, val], i) => {
-    doc.setFont('helvetica','bold');
-    doc.text(label, L, y);
-    doc.setFont('helvetica','normal');
-    doc.text(val, L + 38, y);
-    if(i === rows.length - 1) {
-      doc.setDrawColor(180,180,180);
-      doc.line(L, y - 4, L + 90, y - 4);
-    }
+  doc.setFontSize(10);
+  pricingRows.forEach(([label, val]) => {
+    doc.setFont('helvetica', 'bold'); doc.text(label, L, y);
+    doc.setFont('helvetica', 'normal'); doc.text(val, L + 40, y);
     y += 7;
   });
 
-  y += 8;
+  // Line then Total
+  doc.setDrawColor(150, 150, 150);
+  doc.line(L, y - 2, L + 100, y - 2);
+  y += 3;
+  doc.setFont('helvetica', 'bold'); doc.text('Total:', L, y);
+  doc.setFont('helvetica', 'normal'); doc.text(`$${total.toFixed(0)}`, L + 40, y);
+  y += 14;
+
+  // Bullets
   doc.setFontSize(9);
-  doc.setTextColor(60,60,60);
+  doc.setTextColor(60, 60, 60);
   doc.text('• Trading name: Fireside', L + 4, y); y += 6;
   doc.text(`• Supplier ID number: ${WINZ_SUPPLIER_ID}`, L + 4, y); y += 14;
 
-  doc.setFont('helvetica','normal');
+  // Sign-off
+  doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
-  doc.setTextColor(0,0,0);
+  doc.setTextColor(0, 0, 0);
   doc.text('Yours Sincerely,', L, y); y += 6;
   doc.text('From the Fireside team.', L, y);
 
