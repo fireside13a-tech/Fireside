@@ -157,8 +157,9 @@ textarea{resize:vertical;min-height:64px;font-size:14px;line-height:1.5}
       <div class="form-group"><label>Name</label><input type="text" id="q-name" placeholder="First Last" oninput="renderPreview()"></div>
       <div class="grid2">
         <div class="form-group"><label>Phone</label><input type="tel" id="q-phone" placeholder="021 000 0000"></div>
-        <div class="form-group"><label>Address</label><input type="text" id="q-address" placeholder="123 Main St"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="q-email" placeholder="customer@email.com"></div>
       </div>
+      <div class="form-group"><label>Address</label><input type="text" id="q-address" placeholder="123 Main St"></div>
       <div class="divider"></div>
       <div class="section-title">Order</div>
       <div class="grid2">
@@ -589,10 +590,15 @@ function parseMessage(){
   const am = txt.match(/\d+[a-z]?\s+[A-Za-z\s]+?(?:street|st|road|rd|avenue|ave|drive|dr|place|pl|crescent|cr|lane|ln|way|terrace|tce|close|cl|court|ct)\b/i);
   const addr = am ? am[0].trim() : '';
 
-  if(name) document.getElementById('q-name').value = name;
+  // Email
+  const em = txt.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
+  const email = em ? em[0] : '';
+
+  if(name)  document.getElementById('q-name').value = name;
   if(cubes) document.getElementById('q-cubes').value = cubes;
   if(phone) document.getElementById('q-phone').value = phone;
   if(addr)  document.getElementById('q-address').value = addr;
+  if(email) document.getElementById('q-email').value = email;
   document.getElementById('q-wood').value = wood;
   document.getElementById('parse-input').value = '';
   onWoodChange(); // also calls recommendSuppliers
@@ -1629,23 +1635,10 @@ hr{border:none;border-top:1px solid #aaa;margin:10px 0 16px}
   toast('Quote downloaded — attach the file and send the email that just opened');
 
   // Open Gmail compose pre-filled for WINZ
+  const customerEmail = document.getElementById('q-email')?.value?.trim() || '';
   const subject = encodeURIComponent(`WINZ Firewood Quote #${quoteNo} – ${name}`);
-  const body = encodeURIComponent(
-`Hi,
-
-Please find attached the firewood quote for ${name}.
-
-Quote #: ${quoteNo}
-Amount: $${document.getElementById('q-total')?.textContent?.replace(/[^0-9.]/g,'')||''}
-Supplier ID: ${WINZ_SUPPLIER_ID}
-
-Please don't hesitate to get in touch if you have any questions.
-
-Yours sincerely,
-Delta — Fireside
-${WINZ_PHONE}`
-  );
-  window.open(`https://mail.google.com/mail/u/1/?view=cm&fs=1&to=&su=${subject}&body=${body}`, '_blank');
+  const body = encodeURIComponent(`Hello ${name},\n\nPlease see your WINZ quote attached.\n\nThanks from the Fireside Team.`);
+  window.open(`https://mail.google.com/mail/u/1/?view=cm&fs=1&to=${encodeURIComponent(customerEmail)}&su=${subject}&body=${body}`, '_blank');
 }
 
 // ─── SEED HISTORICAL DATA ────────────────────────────────────
