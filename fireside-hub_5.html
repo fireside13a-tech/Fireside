@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fireside — Operations Hub</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ember: #C4410C; --ember-mid: #E05A1E; --ember-light: #FDE8D8;
+    --ash: #231F1B; --ash-mid: #3A3430; --birch: #F5F1EC;
+    --smoke: #8C8079; --smoke-light: #BFB8B0;
+    --pine: #2A4E10; --pine-light: #E8F0DF;
+    --border: #E0D8D0; --white: #FFFFFF;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --font-serif: Georgia, 'Times New Roman', serif;
+  }
+  body { font-family: var(--font-sans); background: var(--birch); color: var(--ash); min-height: 100vh; }
+
+  /* HEADER */
+  .header { background: var(--ash); padding: 0 28px; display: flex; align-items: center; justify-content: space-between; height: 62px; border-bottom: 3px solid var(--ember); position: sticky; top: 0; z-index: 100; }
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; }
+  .logo-flame { width: 36px; height: 36px; background: var(--ember); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+  .logo-name { font-family: var(--font-serif); font-size: 20px; color: white; letter-spacing: -0.2px; }
+  .logo-sub { font-size: 11px; color: var(--smoke); letter-spacing: 0.8px; text-transform: uppercase; }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .header-time { font-size: 12px; color: var(--smoke); }
+  .back-btn { display: none; align-items: center; gap: 6px; font-size: 13px; color: var(--smoke); background: none; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 5px 12px; cursor: pointer; font-family: var(--font-sans); transition: color 0.12s; }
+  .back-btn:hover { color: white; }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* MAIN */
+  .main { max-width: 860px; margin: 0 auto; padding: 32px 20px 60px; }
+  .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--smoke); margin-bottom: 12px; }
+
+  /* TODAY STRIP */
+  .today-strip { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; gap: 20px; margin-bottom: 36px; flex-wrap: wrap; }
+  .stat { display: flex; flex-direction: column; gap: 2px; min-width: 80px; }
+  .stat-val { font-size: 22px; font-weight: 700; color: var(--ember); font-family: var(--font-serif); }
+  .stat-label { font-size: 11px; color: var(--smoke); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-divider { width: 1px; height: 36px; background: var(--border); }
+  .season-badge { margin-left: auto; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; background: var(--ember-light); color: var(--ember); }
+
+  /* TILES */
+  .tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  @media (min-width: 580px) { .tiles { grid-template-columns: repeat(4, 1fr); } }
+  .tile { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 18px 16px 14px; cursor: pointer; text-decoration: none; color: var(--ash); display: flex; flex-direction: column; gap: 8px; transition: border-color 0.15s, box-shadow 0.15s; font-family: var(--font-sans); text-align: left; }
+  .tile:hover { border-color: var(--ember); box-shadow: 0 2px 12px rgba(196,65,12,0.1); }
+  .tile-icon { width: 42px; height: 42px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 2px; }
+  .icon-orange { background: var(--ember-light); color: var(--ember); }
+  .icon-green  { background: var(--pine-light);  color: var(--pine);  }
+  .icon-blue   { background: #E8F0FE;            color: #1558D6;      }
+  .icon-purple { background: #EEE8FF;            color: #5B3FD4;      }
+  .tile-name { font-size: 13px; font-weight: 600; color: var(--ash); }
+  .tile-desc { font-size: 12px; color: var(--smoke); line-height: 1.4; flex: 1; }
+  .tile-action { font-size: 11px; color: var(--smoke-light); margin-top: 4px; }
+
+  /* MARKETING PAGE */
+  .marketing-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .marketing-head { background: var(--ash-mid); padding: 18px 24px; border-bottom: 2px solid var(--ember); display: flex; align-items: center; gap: 14px; }
+  .marketing-head-icon { width: 40px; height: 40px; background: rgba(196,65,12,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--ember-light); }
+  .marketing-head h2 { font-family: var(--font-serif); font-size: 18px; color: white; }
+  .marketing-head p { font-size: 12px; color: var(--smoke); }
+  .marketing-body { padding: 22px 24px; }
+
+  .cat-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .cat-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; font-size: 12px; font-family: var(--font-sans); color: var(--ash); cursor: pointer; font-weight: 500; transition: all 0.12s; }
+  .cat-btn:hover { border-color: var(--ember); color: var(--ember); }
+  .cat-btn.active { background: var(--ember); border-color: var(--ember); color: white; }
+
+  .detail-row { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+  .detail-input { flex: 1; min-width: 200px; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-family: var(--font-sans); color: var(--ash); background: var(--birch); outline: none; transition: border-color 0.12s; }
+  .detail-input:focus { border-color: var(--ember); }
+  .detail-input::placeholder { color: var(--smoke-light); }
+
+  .gen-btn { background: var(--ember); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; font-family: var(--font-sans); cursor: pointer; display: flex; align-items: center; gap: 7px; white-space: nowrap; transition: background 0.12s; }
+  .gen-btn:hover:not(:disabled) { background: var(--ember-mid); }
+  .gen-btn:disabled { opacity: 0.55; cursor: default; }
+
+  .result-area { margin-top: 20px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; display: none; }
+  .result-area.show { display: block; }
+  .res-section { padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  .res-section:last-child { border-bottom: none; }
+  .res-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--smoke); margin-bottom: 6px; }
+  .res-text { font-size: 14px; color: var(--ash); line-height: 1.7; white-space: pre-line; }
+  .res-tags { color: #1558D6; }
+  .res-tip { background: var(--ember-light); border-radius: 6px; padding: 10px 14px; font-size: 13px; color: #7A2800; line-height: 1.5; }
+  .copy-btn { float: right; font-size: 11px; color: var(--smoke); background: none; border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; cursor: pointer; font-family: var(--font-sans); margin-top: -2px; }
+  .copy-btn:hover { color: var(--ember); border-color: var(--ember); }
+
+  .loading-dots span { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: white; margin: 0 2px; animation: blink 1.2s infinite; }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+
+  .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+  .tip-card { background: var(--birch); border-radius: 8px; padding: 12px 14px; font-size: 12px; color: var(--smoke); line-height: 1.5; }
+  .tip-card strong { color: var(--ash); font-size: 12px; display: block; margin-bottom: 3px; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo" onclick="showPage('dashboard')">
+    <div class="logo-flame"><i class="ti ti-flame" aria-hidden="true"></i></div>
+    <div>
+      <div class="logo-name">Fireside</div>
+      <div class="logo-sub" id="logo-sub">Operations Hub</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="back-btn" id="back-btn" onclick="showPage('dashboard')">
+      <i class="ti ti-arrow-left" aria-hidden="true"></i> Back to hub
+    </button>
+    <div class="header-time" id="clock"></div>
+  </div>
+</header>
+
+<!-- DASHBOARD PAGE -->
+<div class="page active" id="page-dashboard">
+  <div class="main">
+
+    <div class="today-strip">
+      <div class="stat">
+        <span class="stat-val" id="stat-date">—</span>
+        <span class="stat-label">Today</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-val">$135</span>
+        <span class="stat-label">Per m³ (pine)</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-val" id="stat-season">—</span>
+        <span class="stat-label">Season</span>
+      </div>
+      <span class="season-badge" id="season-badge">Loading…</span>
+    </div>
+
+    <p class="eyebrow">Quick access</p>
+    <div class="tiles">
+
+      <a class="tile" href="file:///C:/Users/Owner/Documents/FIreside%20Claude/fireside.html" target="_blank" rel="noopener">
+        <div class="tile-icon icon-orange"><i class="ti ti-file-invoice" aria-hidden="true"></i></div>
+        <div class="tile-name">Orders & Quotes</div>
+        <div class="tile-desc">Fireside quoting, pipeline, and WINZ quotes</div>
+        <div class="tile-action">Open app →</div>
+      </a>
+
+      <a class="tile" href="https://app.smartsheet.com/sheets/r24f2pHW4FJfr9wC8rHXGPCQ9CQJq5Xv3r9wX6M1" target="_blank" rel="noopener">
+        <div class="tile-icon icon-green"><i class="ti ti-table" aria-hidden="true"></i></div>
+        <div class="tile-name">Smartsheet</div>
+        <div class="tile-desc">Order tracking and delivery schedule</div>
+        <div class="tile-action">Open Smartsheet →</div>
+      </a>
+
+      <a class="tile" href="https://mail.google.com/mail/u/1/#inbox" target="_blank" rel="noopener">
+        <div class="tile-icon icon-blue"><i class="ti ti-mail" aria-hidden="true"></i></div>
+        <div class="tile-name">Gmail</div>
+        <div class="tile-desc">fireside13a@gmail.com</div>
+        <div class="tile-action">Open Gmail →</div>
+      </a>
+
+      <button class="tile" onclick="showPage('marketing')">
+        <div class="tile-icon icon-purple"><i class="ti ti-speakerphone" aria-hidden="true"></i></div>
+        <div class="tile-name">Marketing</div>
+        <div class="tile-desc">LinkedIn post ideas and tips generator</div>
+        <div class="tile-action">Open →</div>
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<!-- MARKETING PAGE -->
+<div class="page" id="page-marketing">
+  <div class="main">
+    <div class="marketing-card">
+      <div class="marketing-head">
+        <div class="marketing-head-icon"><i class="ti ti-sparkles" aria-hidden="true"></i></div>
+        <div>
+          <h2>LinkedIn Post Generator</h2>
+          <p>AI-powered — writes in Fireside's voice for Oamaru and North Otago</p>
+        </div>
+      </div>
+      <div class="marketing-body">
+        <p class="eyebrow" style="margin-bottom:10px;">Post type</p>
+        <div class="cat-row">
+          <button class="cat-btn active" onclick="selectCat(this,'behind the scenes')">Behind the scenes</button>
+          <button class="cat-btn" onclick="selectCat(this,'educational firewood tip')">Educational</button>
+          <button class="cat-btn" onclick="selectCat(this,'poll or community question')">Poll</button>
+          <button class="cat-btn" onclick="selectCat(this,'social proof / delivery shoutout')">Social proof</button>
+          <button class="cat-btn" onclick="selectCat(this,'seasonal or weather hook')">Seasonal</button>
+          <button class="cat-btn" onclick="selectCat(this,'commercial / B2B outreach')">Commercial</button>
+        </div>
+        <div class="detail-row">
+          <input class="detail-input" id="extra-detail" type="text" placeholder="Any extra detail? e.g. 'morning delivery to a lodge near Duntroon'" />
+          <button class="gen-btn" id="gen-btn" onclick="generatePost()">
+            <i class="ti ti-sparkles" aria-hidden="true"></i> Generate post
+          </button>
+        </div>
+        <div class="result-area" id="result-area">
+          <div class="res-section">
+            <div class="res-label">Post copy <button class="copy-btn" onclick="copyText('res-copy')">Copy</button></div>
+            <div class="res-text" id="res-copy"></div>
+          </div>
+          <div class="res-section">
+            <div class="res-label">Hashtags</div>
+            <div class="res-text res-tags" id="res-tags"></div>
+          </div>
+          <div class="res-section">
+            <div class="res-label">Photo tip</div>
+            <div class="res-tip" id="res-photo"></div>
+          </div>
+          <div class="res-section">
+            <div class="res-label">Best time to post</div>
+            <div class="res-text" id="res-timing"></div>
+          </div>
+        </div>
+        <div class="tips-grid">
+          <div class="tip-card"><strong>Best posting days</strong>Tuesday–Thursday, 7–9am or 12–1pm NZT get the highest LinkedIn reach.</div>
+          <div class="tip-card"><strong>Photo format</strong>Landscape (16:9) or square (1:1) for feed posts. No portrait — gets cropped on desktop.</div>
+          <div class="tip-card"><strong>First line matters</strong>LinkedIn cuts copy after 2 lines. Open with a hook — not "Excited to share…"</div>
+          <div class="tip-card"><strong>Consistency beats frequency</strong>One solid post per week beats three average ones. Aim for 4–5 a month.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let selectedCat = 'behind the scenes';
+
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    window.scrollTo(0, 0);
+    const isHub = id === 'dashboard';
+    document.getElementById('back-btn').style.display = isHub ? 'none' : 'flex';
+    document.getElementById('logo-sub').textContent = isHub ? 'Operations Hub' : 'Marketing Hub';
+  }
+
+  function tick() {
+    const now = new Date();
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    document.getElementById('clock').textContent = now.toLocaleTimeString('en-NZ', {hour:'2-digit', minute:'2-digit'});
+    document.getElementById('stat-date').textContent = days[now.getDay()].slice(0,3) + ' ' + now.getDate() + ' ' + months[now.getMonth()];
+    const m = now.getMonth() + 1;
+    let s = 'Spring';
+    if ([6,7,8].includes(m)) s = 'Winter';
+    else if ([3,4,5].includes(m)) s = 'Autumn';
+    else if ([12,1,2].includes(m)) s = 'Summer';
+    document.getElementById('stat-season').textContent = s;
+    const badge = document.getElementById('season-badge');
+    if (s === 'Winter' || s === 'Autumn') {
+      badge.textContent = '🔥 Peak season'; badge.style.background = '#FDE8D8'; badge.style.color = '#C4410C';
+    } else {
+      badge.textContent = '📋 Off-peak — build pipeline'; badge.style.background = '#E8F0DF'; badge.style.color = '#2A4E10';
+    }
+  }
+  tick(); setInterval(tick, 1000);
+
+  function selectCat(btn, cat) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); selectedCat = cat;
+  }
+
+  function copyText(id) {
+    navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    });
+  }
+
+  async function generatePost() {
+    const btn = document.getElementById('gen-btn');
+    const extra = document.getElementById('extra-detail').value.trim();
+    const area = document.getElementById('result-area');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+    area.classList.remove('show');
+    const systemPrompt = `You are a social media strategist writing LinkedIn posts for Fireside, a small firewood delivery business in Oamaru, New Zealand. Owner: Delta. Product: well-seasoned pine firewood at $135/m³, delivered across North Otago and the Waitaki Valley. Tone: warm, practical, local — like a real person who knows their product and community. Never corporate, never salesy. Conversational NZ English. Short paragraphs.`;
+    const userPrompt = `Write a LinkedIn post of type: "${selectedCat}".${extra ? ` Extra context: ${extra}` : ''}\n\nRespond ONLY with a valid JSON object — no markdown fences, no preamble. Keys: "copy" (3-5 short paragraphs, conversational, 1-2 emoji max), "hashtags" (6-8 space-separated), "photo_tip" (one sentence), "timing" (best day/time in NZ + one sentence why).`;
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: systemPrompt, messages: [{ role: 'user', content: userPrompt }] })
+      });
+      const data = await resp.json();
+      const raw = (data.content || []).map(b => b.text || '').join('');
+      const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+      document.getElementById('res-copy').textContent   = parsed.copy;
+      document.getElementById('res-tags').textContent   = parsed.hashtags;
+      document.getElementById('res-photo').textContent  = parsed.photo_tip;
+      document.getElementById('res-timing').textContent = parsed.timing;
+      area.classList.add('show');
+    } catch {
+      document.getElementById('res-copy').textContent = 'Something went wrong — try again in a moment.';
+      area.classList.add('show');
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-refresh" aria-hidden="true"></i> Generate another';
+  }
+</script>
+</body>
+</html>
