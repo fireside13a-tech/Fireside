@@ -118,6 +118,7 @@ textarea{resize:vertical;min-height:64px;font-size:14px;line-height:1.5}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -1620,16 +1621,89 @@ hr{border:none;border-top:1px solid #aaa;margin:10px 0 16px}
 </body>
 </html>`;
 
-  // Open quote in new tab and auto-print so user saves as PDF
-  const blob = new Blob([html], {type:'text/html'});
-  const url  = URL.createObjectURL(blob);
-  const win  = window.open(url, '_blank');
-  if(win) win.onload = () => { win.focus(); win.print(); };
-  setTimeout(()=>URL.revokeObjectURL(url), 30000);
+  // Generate real PDF using jsPDF
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const L = 20, R = 190, W = 170;
+  let y = 18;
+
+  // Logo text (no image embed needed — use styled text)
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(22);
+  doc.setTextColor(196,65,12);
+  doc.text('FIRESIDE', L, y);
+
+  // Contact block top-right
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.setTextColor(60,60,60);
+  doc.text([WINZ_PHONE, WINZ_EMAIL, 'Oamaru – Otago'], R, y - 4, {align:'right'});
+
+  y += 5;
+  doc.setDrawColor(180,180,180);
+  doc.line(L, y, R, y);
+  y += 8;
+
+  // Recipient + Quote meta
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10);
+  doc.setTextColor(0,0,0);
+  doc.text(name, L, y);
+  if(addr) { y += 5; doc.text(addr, L, y); }
+  if(phone) { y += 5; doc.text(phone, L, y); }
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(11);
+  doc.setTextColor(40,40,40);
+  doc.text(`Quote No: ${quoteNo}`, R, y - (addr ? 10 : 5), {align:'right'});
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  if(dateStr) doc.text(dateStr, R, y - (addr ? 15 : 10), {align:'right'});
+
+  y += 12;
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(11);
+  doc.setTextColor(0,0,0);
+  doc.text(`Specifications: ${spec}`, L, y);
+
+  y += 10;
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10);
+
+  const rows = [
+    ['Wood Price:', `$${woodTotal.toFixed(0)}`],
+    ['Delivery:', delStr],
+    ['Total:', `$${total.toFixed(0)}`],
+  ];
+  rows.forEach(([label, val], i) => {
+    doc.setFont('helvetica','bold');
+    doc.text(label, L, y);
+    doc.setFont('helvetica','normal');
+    doc.text(val, L + 38, y);
+    if(i === rows.length - 1) {
+      doc.setDrawColor(180,180,180);
+      doc.line(L, y - 4, L + 90, y - 4);
+    }
+    y += 7;
+  });
+
+  y += 8;
+  doc.setFontSize(9);
+  doc.setTextColor(60,60,60);
+  doc.text('• Trading name: Fireside', L + 4, y); y += 6;
+  doc.text(`• Supplier ID number: ${WINZ_SUPPLIER_ID}`, L + 4, y); y += 14;
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10);
+  doc.setTextColor(0,0,0);
+  doc.text('Yours Sincerely,', L, y); y += 6;
+  doc.text('From the Fireside team.', L, y);
+
+  doc.save(`WINZ-Quote-${quoteNo}-${name.replace(/\s+/g,'-')}.pdf`);
 
   saveNextWinzNo(parseInt(quoteNo)+1);
   document.getElementById('w-quoteNo').value = parseInt(quoteNo)+1;
-  toast('1. Save as PDF in the print dialog  2. Attach PDF to the email that opens');
+  toast('PDF saved — attach it to the email that just opened');
 
   // Open Gmail compose pre-filled for WINZ
   const customerEmail = document.getElementById('q-email')?.value?.trim() || '';
