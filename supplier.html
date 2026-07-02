@@ -178,8 +178,17 @@ function renderWoodList(){
                value="${w.cubes||0}" min="0" step="0.5">
         <div class="unit">m³</div>
       </div>
+      <button onclick="removeWoodType(${i})" style="background:none;border:none;color:#ccc;font-size:20px;cursor:pointer;padding:0 0 0 8px;line-height:1" title="Remove">×</button>
     </div>`).join('');
 }
+
+window.removeWoodType = function(i){
+  const rows = (_s.woodTypes||[]).filter(w=>w.avail);
+  const target = rows[i];
+  if(!target) return;
+  target.avail = false;
+  renderWoodList();
+};
 
 function key(t){ return t.replace(/\s/g,'-'); }
 
