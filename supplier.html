@@ -59,30 +59,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <!-- Add new wood type -->
       <div style="margin-top:14px;padding-top:14px;border-top:1px solid #f0f0f0">
         <div style="font-size:11px;color:#999;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Add Wood Type</div>
-        <div style="display:grid;grid-template-columns:1fr 80px 80px auto;gap:8px;align-items:end">
+        <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px">
           <div>
             <label style="font-size:11px;color:#999;display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Type</label>
             <select class="add-input" id="new-wood-name" style="width:100%;padding:8px 10px;font-size:14px;border:1.5px solid #e0e0e0;border-radius:7px;outline:none;background:#fff">
               <option value="">Select…</option>
-              <optgroup label="Pine"><option value="Pine|dry">Pine – DRY</option><option value="Pine|green">Pine – GREEN</option></optgroup>
-              <optgroup label="Gum"><option value="Gum|dry">Gum – DRY</option><option value="Gum|green">Gum – GREEN</option></optgroup>
-              <optgroup label="Macro"><option value="Macro|dry">Macro – DRY</option><option value="Macro|green">Macro – GREEN</option></optgroup>
-              <optgroup label="Poplar"><option value="Poplar|dry">Poplar – DRY</option><option value="Poplar|green">Poplar – GREEN</option></optgroup>
-              <optgroup label="Black Poplar"><option value="Black Poplar|dry">Black Poplar – DRY</option><option value="Black Poplar|green">Black Poplar – GREEN</option></optgroup>
-              <optgroup label="Mixed"><option value="Mixed|dry">Mixed – DRY</option><option value="Mixed|green">Mixed – GREEN</option></optgroup>
-              <optgroup label="Hot Mix"><option value="Hot Mix|dry">Hot Mix – DRY</option><option value="Hot Mix|green">Hot Mix – GREEN</option></optgroup>
-              <optgroup label="OMP"><option value="OMP|dry">OMP – DRY</option><option value="OMP|green">OMP – GREEN</option></optgroup>
+              <option>Pine</option><option>Gum</option><option>Macro</option><option>Poplar</option>
+              <option>Black Poplar</option><option>Mixed</option><option>Hot Mix</option><option>OMP</option>
               <option value="__other__">Other…</option>
             </select>
-            <input class="add-input" id="new-wood-custom" placeholder="Wood type name" style="display:none;margin-top:6px;width:100%;padding:8px 10px;font-size:14px;border:1.5px solid #e0e0e0;border-radius:7px;outline:none">
+            <input id="new-wood-custom" placeholder="Wood type name" style="display:none;margin-top:6px;width:100%;padding:8px 10px;font-size:14px;border:1.5px solid #e0e0e0;border-radius:7px;outline:none">
           </div>
+          <div>
+            <label style="font-size:11px;color:#999;display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Seasoned</label>
+            <div style="display:flex;gap:6px;padding-top:4px">
+              <label style="display:flex;align-items:center;gap:4px;cursor:pointer">
+                <input type="radio" name="new-seasoned" value="dry" checked>
+                <span style="background:#b45309;color:#fff;border-radius:4px;padding:3px 10px;font-size:12px;font-weight:700">DRY</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:4px;cursor:pointer">
+                <input type="radio" name="new-seasoned" value="green">
+                <span style="background:#16a34a;color:#fff;border-radius:4px;padding:3px 10px;font-size:12px;font-weight:700">GREEN</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
           <div>
             <label style="font-size:11px;color:#999;display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">$/m³</label>
-            <input class="add-input" id="new-wood-price" type="number" placeholder="135" min="0" style="width:100%;padding:8px 10px;font-size:14px;border:1.5px solid #e0e0e0;border-radius:7px;outline:none">
+            <input id="new-wood-price" type="number" placeholder="135" min="0" style="width:100%;padding:8px 10px;font-size:14px;border:1.5px solid #e0e0e0;border-radius:7px;outline:none">
           </div>
           <div>
-            <label style="font-size:11px;color:#999;display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">m³</label>
-            <input class="add-input" id="new-wood-cubes" type="number" placeholder="0" min="0" step="0.5" style="width:100%;padding:8px 10px;font-size:14px;border:1.5px solid #e0e0e0;border-radius:7px;outline:none">
+            <label style="font-size:11px;color:#999;display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">m³ available</label>
+            <input id="new-wood-cubes" type="number" placeholder="0" min="0" step="0.5" style="width:100%;padding:8px 10px;font-size:14px;border:1.5px solid #e0e0e0;border-radius:7px;outline:none">
           </div>
           <button class="add-btn" onclick="addWoodType()">+ Add</button>
         </div>
@@ -184,16 +193,10 @@ document.addEventListener('change', function(e){
 window.addWoodType = function(){
   const sel = document.getElementById('new-wood-name').value;
   const custom = document.getElementById('new-wood-custom').value.trim();
+  const name = sel==='__other__' ? custom : sel;
+  const seasoned = document.querySelector('input[name="new-seasoned"]:checked')?.value||'dry';
   const price = parseFloat(document.getElementById('new-wood-price').value)||0;
   const cubes = parseFloat(document.getElementById('new-wood-cubes').value)||0;
-  let name, seasoned;
-  if(sel==='__other__'){
-    name=custom; seasoned='dry';
-  } else if(sel.includes('|')){
-    [name,seasoned]=sel.split('|');
-  } else {
-    alert('Select a wood type'); return;
-  }
   if(!name){ alert('Select a wood type'); return; }
   const existing=_s.woodTypes.find(w=>w.type.toLowerCase()===name.toLowerCase()&&(w.seasoned||'dry')===seasoned);
   if(existing){
