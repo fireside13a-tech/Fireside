@@ -1649,7 +1649,7 @@ hr{border:none;border-top:1px solid #aaa;margin:10px 0 16px}
   doc.setFontSize(10);
   doc.setTextColor(0,0,0);
   doc.text(name, L, y);
-  if(addr) { y += 5; doc.text(addr, L, y); }
+  y += 5; doc.text(addr || 'Address: ___________________________', L, y);
   if(phone) { y += 5; doc.text(phone, L, y); }
 
   doc.setFont('helvetica','bold');
