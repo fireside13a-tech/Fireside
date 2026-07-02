@@ -285,6 +285,12 @@ textarea{resize:vertical;min-height:64px;font-size:14px;line-height:1.5}
       </div>
     </div>
     <div class="card">
+      <div class="section-title">Data Backup & Restore</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">The app automatically saves a backup every time it syncs with Firebase. If suppliers or orders go missing, restore from a recent backup here.</div>
+      <div id="backup-list"></div>
+      <button class="btn btn-secondary" style="margin-top:10px" onclick="renderBackups()">Refresh Backups</button>
+    </div>
+    <div class="card">
       <div class="section-title">Weekly Supplier Emails</div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div>
@@ -389,7 +395,7 @@ function goTab(tab, el){
   if(tab==='customers') renderCustomers();
   if(tab==='suppliers') renderSuppliers();
   if(tab==='dashboard') renderDashboard();
-  if(tab==='settings') renderSettings();
+  if(tab==='settings'){renderSettings();renderBackups();}
 }
 
 // ─── QUOTE ───────────────────────────────────────────────────
@@ -1253,6 +1259,34 @@ function renderChart(paid){
 }
 
 // ─── SETTINGS ────────────────────────────────────────────────
+function renderBackups(){
+  const backups=JSON.parse(localStorage.getItem('fireside-backups')||'[]');
+  const el=document.getElementById('backup-list');
+  if(!el) return;
+  if(!backups.length){el.innerHTML='<div style="font-size:13px;color:var(--muted)">No backups yet — they are created automatically when the app syncs.</div>';return;}
+  el.innerHTML=backups.map((b,i)=>{
+    const d=new Date(b.ts);
+    const label=d.toLocaleDateString('en-NZ',{day:'numeric',month:'short'})+' at '+d.toLocaleTimeString('en-NZ',{hour:'2-digit',minute:'2-digit'});
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface);border-radius:6px;border:1px solid var(--border);margin-bottom:8px">
+      <div>
+        <div style="font-weight:600;font-size:13px">${label}</div>
+        <div style="font-size:12px;color:var(--muted)">${b.suppliers.length} suppliers · ${b.orders.length} orders</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="restoreBackup(${i})">Restore</button>
+    </div>`;
+  }).join('');
+}
+function restoreBackup(i){
+  const backups=JSON.parse(localStorage.getItem('fireside-backups')||'[]');
+  const b=backups[i];
+  if(!b){toast('Backup not found');return;}
+  if(!confirm('Restore this backup? This will overwrite your current suppliers and orders in Firebase.')) return;
+  suppliers=b.suppliers;
+  orders=b.orders;
+  persist();
+  toast('Backup restored ✓');
+  renderHome(); renderOrders(); renderSuppliers(); renderDashboard();
+}
 function renderSettings(){
   // Wood prices
   document.getElementById('wood-prices-list').innerHTML=
@@ -1385,6 +1419,12 @@ async function initFirebase(cfg){
       suppliers=d.suppliers||suppliers;
       woodPrices=d.woodPrices||woodPrices;
       areas=d.areas||areas;
+      // Auto-backup: keep last 5 snapshots in localStorage
+      if(suppliers.length>0){
+        const backups=JSON.parse(localStorage.getItem('fireside-backups')||'[]');
+        backups.unshift({ts:new Date().toISOString(),suppliers:JSON.parse(JSON.stringify(suppliers)),orders:JSON.parse(JSON.stringify(orders))});
+        localStorage.setItem('fireside-backups',JSON.stringify(backups.slice(0,5)));
+      }
       renderHome(); renderOrders(); renderCustomers(); renderSuppliers(); renderDashboard();
       refreshAreaDropdown(); refreshSupplierDropdown();
     });
