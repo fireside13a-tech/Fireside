@@ -563,7 +563,7 @@ function parseMessage(){
   if(m) name = extractName(m[1]);
 
   // Cubes
-  const cm = txt.match(/(\d+(?:\.\d+)?)\s*(?:m³|m3|cubic|cubes?|(?<!\d)m(?!\d))/i);
+  const cm = txt.match(/(\d+(?:\.\d+)?)\s*(?:m³|m3|cubic|cubes?|m\b)/i);
   const cubes = cm ? cm[1] : '';
 
   // Wood type
@@ -1620,19 +1620,16 @@ hr{border:none;border-top:1px solid #aaa;margin:10px 0 16px}
 </body>
 </html>`;
 
+  // Open quote in new tab and auto-print so user saves as PDF
   const blob = new Blob([html], {type:'text/html'});
   const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = `WINZ-Quote-${quoteNo}-${name.replace(/\s+/g,'-')}.html`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(url), 5000);
+  const win  = window.open(url, '_blank');
+  if(win) win.onload = () => { win.focus(); win.print(); };
+  setTimeout(()=>URL.revokeObjectURL(url), 30000);
 
   saveNextWinzNo(parseInt(quoteNo)+1);
   document.getElementById('w-quoteNo').value = parseInt(quoteNo)+1;
-  toast('Quote downloaded — attach the file and send the email that just opened');
+  toast('1. Save as PDF in the print dialog  2. Attach PDF to the email that opens');
 
   // Open Gmail compose pre-filled for WINZ
   const customerEmail = document.getElementById('q-email')?.value?.trim() || '';
