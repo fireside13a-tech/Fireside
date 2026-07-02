@@ -912,6 +912,7 @@ function openSupplierModal(sid){
       <span style="width:22px"></span><span style="flex:1">Type</span><span style="width:72px;text-align:center">Dry/Green</span><span style="width:60px;text-align:center">Cubes</span><span style="width:72px;text-align:center">$/m³</span>
     </div>
     ${rowHtml}
+    <div class="form-group" style="margin-top:14px"><label>Notes</label><textarea id="sp-notes" rows="3" style="width:100%;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;resize:vertical">${s?s.notes||'':''}</textarea></div>
     <div class="btn-row" style="margin-top:14px">
       <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveSupplier('${sid||''}',${allEntries.length})">Save</button>
@@ -936,6 +937,7 @@ function saveSupplier(sid, rowCount){
     phone:document.getElementById('sp-phone').value.trim(),
     email:document.getElementById('sp-email').value.trim(),
     deliveryFee:parseFloat(document.getElementById('sp-del').value)||35,
+    notes:document.getElementById('sp-notes').value.trim(),
     woodTypes:wtData
   };
   if(!data.name){toast('Enter a name');return;}
