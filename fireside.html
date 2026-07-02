@@ -831,12 +831,12 @@ function renderSupplierInfo(){
     </div>
   </div>`;
 }
-let _map=null, _mapMarkers=[];
+let _map=null, _mapMarkers=[], _mapFitted=false;
 async function renderSupplierMap(){
   const el=document.getElementById('supplier-map');
   if(!el) return;
   if(!_map){
-    _map=L.map('supplier-map').setView([-44.9,170.97],9);
+    _map=L.map('supplier-map',{zoomControl:true}).setView([-44.9,170.97],9);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
       attribution:'© OpenStreetMap'
     }).addTo(_map);
@@ -846,7 +846,6 @@ async function renderSupplierMap(){
   const bounds=[];
   for(const s of suppliers){
     if(!s.address) continue;
-    // use cached lat/lng or geocode
     let lat=s.lat, lng=s.lng;
     if(!lat||!lng){
       try{
@@ -861,7 +860,7 @@ async function renderSupplierMap(){
     _mapMarkers.push(m);
     bounds.push([lat,lng]);
   }
-  if(bounds.length) _map.fitBounds(bounds,{padding:[30,30]});
+  if(bounds.length&&!_mapFitted){_map.fitBounds(bounds,{padding:[30,30]});_mapFitted=true;}
   setTimeout(()=>_map.invalidateSize(),100);
 }
 function renderSuppliers(){
