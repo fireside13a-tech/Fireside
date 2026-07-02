@@ -1699,17 +1699,20 @@ hr{border:none;border-top:1px solid #aaa;margin:10px 0 16px}
   doc.text('Yours Sincerely,', L, y); y += 6;
   doc.text('From the Fireside team.', L, y);
 
-  doc.save(`WINZ-Quote-${quoteNo}-${name.replace(/\s+/g,'-')}.pdf`);
-
-  saveNextWinzNo(parseInt(quoteNo)+1);
-  document.getElementById('w-quoteNo').value = parseInt(quoteNo)+1;
-  toast('PDF saved — attach it to the email that just opened');
-
-  // Open Gmail compose pre-filled for WINZ
+  // Open Gmail first (must happen on user gesture before doc.save steals it)
   const customerEmail = document.getElementById('q-email')?.value?.trim() || '';
   const subject = encodeURIComponent(`WINZ Firewood Quote #${quoteNo} – ${name}`);
   const body = encodeURIComponent(`Hello ${name},\n\nPlease see your WINZ quote attached.\n\nThanks from the Fireside Team.`);
-  window.open(`https://mail.google.com/mail/u/1/?view=cm&fs=1&to=${encodeURIComponent(customerEmail)}&su=${subject}&body=${body}`, '_blank');
+  window.open(`https://mail.google.com/mail/?authuser=fireside13a%40gmail.com&view=cm&fs=1&to=${encodeURIComponent(customerEmail)}&su=${subject}&body=${body}`, '_blank');
+
+  // Save PDF after opening Gmail
+  setTimeout(() => {
+    doc.save(`WINZ-Quote-${quoteNo}-${name.replace(/\s+/g,'-')}.pdf`);
+  }, 300);
+
+  saveNextWinzNo(parseInt(quoteNo)+1);
+  document.getElementById('w-quoteNo').value = parseInt(quoteNo)+1;
+  toast('PDF downloading — attach it to the Gmail that just opened');
 }
 
 // ─── SEED HISTORICAL DATA ────────────────────────────────────
