@@ -558,10 +558,16 @@ function parseMessage(){
   if(!m) m = txt.match(/\b(.+?)\s+here\b/i);
   // Try: "NAME calling" / "NAME speaking"
   if(!m) m = txt.match(/\b(.+?)\s+(?:calling|speaking|ringing)\b/i);
-  // Try: message starts with "Firstname Lastname," or "Firstname Lastname\n"
-  if(!m) m = txt.match(/^([A-Z][a-z]+ [A-Z][a-z]+)[,\n]/m);
+  // Try: "Firstname Lastname" at start (any case)
+  if(!m) m = txt.match(/^([A-Za-z]+ [A-Za-z]+)[,\n\s]/m);
+  // Fallback: first word(s) on first line that aren't stop words
+  if(!m) {
+    const firstLine = txt.split('\n')[0].trim();
+    if(firstLine && !/\d/.test(firstLine) && firstLine.split(' ').length <= 4)
+      name = firstLine.replace(/[^A-Za-z\s]/g,'').trim().replace(/\b\w/g,c=>c.toUpperCase());
+  }
 
-  if(m) name = extractName(m[1]);
+  if(m && !name) name = extractName(m[1]);
 
   // Cubes
   const cm = txt.match(/(\d+(?:\.\d+)?)\s*(?:m³|m3|cubic|cubes?|m\b)/i);
@@ -583,8 +589,8 @@ function parseMessage(){
   const seasonedRadio = document.querySelector(`input[name="q-seasoned"][value="${seasonedVal}"]`);
   if(seasonedRadio) seasonedRadio.checked = true;
 
-  // Phone — NZ mobile/landline formats
-  const pm = txt.match(/(?:\+?64\s?|0)[2-9][\d\s-]{6,10}\d/);
+  // Phone — NZ mobile/landline formats (stops at non-digit/space boundary)
+  const pm = txt.match(/(?:\+?64\s?|0)[2-9]\d{7,9}(?!\d)/);
   const phone = pm ? pm[0].replace(/\s+/g,' ').trim() : '';
 
   // Address — number + street name + type
