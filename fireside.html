@@ -1626,7 +1626,26 @@ hr{border:none;border-top:1px solid #aaa;margin:10px 0 16px}
 
   saveNextWinzNo(parseInt(quoteNo)+1);
   document.getElementById('w-quoteNo').value = parseInt(quoteNo)+1;
-  toast('Quote downloaded — open the file, then Print → Save as PDF');
+  toast('Quote downloaded — attach the file and send the email that just opened');
+
+  // Open Gmail compose pre-filled for WINZ
+  const subject = encodeURIComponent(`WINZ Firewood Quote #${quoteNo} – ${name}`);
+  const body = encodeURIComponent(
+`Hi,
+
+Please find attached the firewood quote for ${name}.
+
+Quote #: ${quoteNo}
+Amount: $${document.getElementById('q-total')?.textContent?.replace(/[^0-9.]/g,'')||''}
+Supplier ID: ${WINZ_SUPPLIER_ID}
+
+Please don't hesitate to get in touch if you have any questions.
+
+Yours sincerely,
+Delta — Fireside
+${WINZ_PHONE}`
+  );
+  window.open(`https://mail.google.com/mail/u/1/?view=cm&fs=1&to=&su=${subject}&body=${body}`, '_blank');
 }
 
 // ─── SEED HISTORICAL DATA ────────────────────────────────────
