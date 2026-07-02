@@ -188,10 +188,12 @@ window.addWoodType = function(){
   const price = parseFloat(document.getElementById('new-wood-price').value)||0;
   const cubes = parseFloat(document.getElementById('new-wood-cubes').value)||0;
   if(!name || name==='Select…'){ alert('Select a wood type'); return; }
-  if(_s.woodTypes.find(w=>w.type.toLowerCase()===name.toLowerCase())){
-    alert('That wood type already exists'); return;
+  const existing=_s.woodTypes.find(w=>w.type.toLowerCase()===name.toLowerCase());
+  if(existing){
+    existing.cost=price; existing.cubes=cubes; existing.avail=true;
+  } else {
+    _s.woodTypes.push({type:name, cost:price, avail:true, cubes:cubes});
   }
-  _s.woodTypes.push({type:name, cost:price, avail:true, cubes:cubes});
   document.getElementById('new-wood-name').value='';
   document.getElementById('new-wood-custom').value='';
   document.getElementById('new-wood-custom').style.display='none';
